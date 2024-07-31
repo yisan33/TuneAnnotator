@@ -1,0 +1,18 @@
+
+
+
+
+
+
+    @GlobalTransactional
+	@PostMapping("save")
+    public String save(){
+        Order order = new Order();
+        order.setId(555L);
+        order.setOrderNo("DD001");
+        order.setCreateTime(new Date());
+        orderService.save(order);
+        return productApi.save();
+}
+
+
