@@ -52,13 +52,13 @@
             icon: 's-home',
             url: 'Home/Home',
           },
-          // {
-          //   path: '/user',
-          //   name: 'user',
-          //   label: '开始评价',
-          //   icon: 'user',
-          //   url: 'UserManage/Usermanage',
-          // },
+          {
+            path: '/user',
+            name: 'user',
+            label: '开始评价',
+            icon: 'user',
+            url: 'UserManage/Usermanage',
+          },
           //   {
           //   path: '/scorelist',
           //   name: 'scorelist',
