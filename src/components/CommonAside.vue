@@ -69,7 +69,7 @@
           {
             path: '/page1',
                 name: 'page1',
-                label: '技巧标注',
+                label: '质量评估',
                 icon: 'setting',
                 url: 'Other/PageOne',
           }

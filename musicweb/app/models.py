@@ -55,3 +55,15 @@ class AssignUserMusic(models.Model):
     user_id = models.ForeignKey(to=User, db_column='user_id', on_delete=models.CASCADE)
     music_id = models.ForeignKey(to=Music, db_column='music_id', on_delete=models.CASCADE)
     is_mark = models.IntegerField(default=0) # 是否标注
+
+class DimensionScore(models.Model):
+    dimension_score_id = models.AutoField(primary_key=True)
+    user_id = models.ForeignKey(to=User, db_column='user_id', on_delete=models.CASCADE)
+    music_id = models.ForeignKey(to=Music, db_column='music_id', on_delete=models.CASCADE)
+    dimension = models.CharField(max_length=30, default='')
+    dimension_score = models.IntegerField(default=-1)
+    mark_time = models.DateTimeField(default = timezone.now)
+
+    class Meta:
+        db_table = 'DimensionScore'
+

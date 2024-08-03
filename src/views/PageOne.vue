@@ -1,31 +1,5 @@
 <template>
   <div>
-    <!--<el-dialog-->
-    <!--  title="修正技巧标注"-->
-    <!--  :visible.sync="isAdjustDialogVisible"-->
-    <!--  width="50%"-->
-    <!--&gt;-->
-    <!--  &lt;!&ndash; 音频播放器 &ndash;&gt;-->
-    <!--  <div>-->
-    <!--<div>开始时间: {{ adjustedRange[0] | formatSecond }}</div>-->
-    <!--<div>结束时间: {{ adjustedRange[1] | formatSecond }}</div>-->
-    <!-- <el-slider-->
-    <!--  v-show="isSliderReady"-->
-    <!--  v-model="adjustedRange"-->
-    <!--  :min="adjustMin"-->
-    <!--  :max="adjustMax"-->
-    <!--  range>-->
-    <!--</el-slider>-->
-    <!--<div>开始时间: {{ adjustedRange[0] | formatSecond }}</div>-->
-    <!--<div>结束时间: {{ adjustedRange[1] | formatSecond }}</div>-->
-    <!--<div>直接显示 adjustedRange: {{ adjustedRange[0] }} - {{ adjustedRange[1] }}</div>-->
-    <!--<div>过滤器处理后的时间: {{ adjustedRange[0] | formatSecond }} - {{ adjustedRange[1] | formatSecond }}</div>-->
-    <!--  </div>-->
-    <!--  <span slot="footer" class="dialog-footer">-->
-    <!--    <el-button @click="isAdjustDialogVisible = false">取消</el-button>-->
-    <!--    <el-button type="primary" @click="saveAdjustedRange">保存修改</el-button>-->
-    <!--  </span>-->
-    <!--</el-dialog>-->
     <div>
       <el-dialog
           class="mydialog"
@@ -40,6 +14,7 @@
         </el-button>
         <br><br><br><br>
       </el-dialog>
+
       <el-dialog
           class="mydialog"
           :close-on-click-modal="false"
@@ -50,18 +25,21 @@
                    style="margin-top: -30px;margin-left: 40%;width: 150px;height: 50px" class="dialog-box-center">标注结束
         </el-button>
       </el-dialog>
+
+
     </div>
     <div class="audio-player" style="margin-top:10px; margin-left:10px">
       <div style="margin-top: 20px">
-        <el-col :span="24">
+        <el-col :span="10">
           <el-card class="box-card" style="margin-top: 2px;width: 100%">
             <span>歌曲：{{ name }}</span>&nbsp&nbsp<span>id：{{ id }}</span>&nbsp&nbsp<span>流派：{{ genre }}</span>
             <br>
             <div style="margin-top: 5px">
               <el-button @click="musicPre" type="primary">上一首</el-button>
               <el-button @click="musicPlay" type="primary">暂停/播放</el-button>
-              <!--              <el-button @click="musicNext" type="primary">下一首</el-button>-->
+              <el-button @click="musicNext" type="primary">下一首</el-button>
             </div>
+
             <div style="margin-top: 5px">
               <!--      <span>{{src}}</span>-->
               <audio ref="audio"
@@ -74,160 +52,233 @@
               </audio>
               <!--              <audio src="../assets/wav/胡夏-那些年_(Vocals).wav" controls autoplay></audio>-->
             </div>
-            <!--<el-slider-->
-            <!--  v-model="sliderTime"-->
-            <!--  :format-tooltip="formatProcessToolTip"-->
-            <!--  @change="changeCurrentTime"-->
-            <!--  @mousedown="startDragging"-->
-            <!--  @mouseup="stopDragging"-->
-            <!--  class="slider" style="width: 100%;">-->
-            <!--</el-slider>-->
-            <div class="progress-bar" ref="progressBar">
-              <el-slider
-                  v-model="sliderTime"
-                  :format-tooltip="formatProcessToolTip"
-                  @change="changeCurrentTime"
-                  class="slider" style="width: 100%;">
-              </el-slider>
-              <!-- 技巧开始和结束的红线 -->
-              <div v-if="showRedLines" class="red-line"
-                   :style="{left: startLinePosition}"
-                   @mousedown="startDragging('start', $event)">
-                <span class="time-text">{{ startLineTimeText }}</span>
-              </div>
-              <div v-if="showRedLines" class="red-line"
-                   :style="{left: endLinePosition}"
-                   @mousedown="startDragging('end', $event)">
-                <span class="time-text">{{ endLineTimeText }}</span>
-              </div>
+            <el-slider v-model="sliderTime" :format-tooltip="formatProcessToolTip" @change="changeCurrentTime"
+                       class="slider">
+
+            </el-slider>
+            <span class="current">{{ audio.currentTime | formatSecond }}</span>
+            <span class="duration">/{{ audio.maxTime | formatSecond }}</span>
+            <br>
+            <div style="margin-top: 1vh">
+              <!--              <el-button @click="start" type="primary">开始</el-button>-->
+              <!--              <el-button @click="end" style="margin-left: 10px;" type="primary">结束-->
+              <!--              </el-button>-->
+              <!--              <el-button @click="inputpd" type="primary">提交</el-button>&nbsp;&nbsp;起始时间：{{-->
+              <!--                this.bb + ':' + this.cc-->
+              <!--              }}&nbsp;结束时间：{{ this.dd + ':' + this.ee }}-->
+
+
             </div>
-            <div class="technique-bar-container" v-for="technique in ['颤音', '滑音', '气泡音', '假声', '转音']"
-                 :key="technique">
-              <div class="technique-bar base-bar"></div>
-              <div v-for="range in techniqueRanges" v-if="range.type === technique" :key="range.startPct"
-                   class="technique-bar overlay-bar"
-                   :style="{ left: range.startPct + '%', width: (range.endPct - range.startPct) + '%', backgroundColor: getTechniqueColor(technique) }"
-                   @click="playAndMarkTechnique(range)">
-                <el-tooltip class="item" effect="dark" :content="hengtiaoshijian(range)" placement="top">
-                  <div style="width: 100%; height: 100%;"></div>
-                </el-tooltip>
-              </div>
-            </div>
-            <div style="margin-top: 1%">
-              <span class="current">{{ audio.currentTime | formatSecond }}s</span>
-              <span class="duration">/{{ audio.maxTime | formatSecond }}s</span>
-              <el-button type="primary" size="small" @click="rewindOneSecond"
-                         style="margin-left: 20%;width: 100px;height: 30px" class="dialog-box-center">后退1s
-              </el-button>
-              <el-button type="primary" size="small" @click="forwardOneSecond"
-                         style="margin-left: 3%;width: 100px;height: 30px" class="dialog-box-center">前进1s
-              </el-button>
-              <el-button style="margin-left: 2%">播放速度</el-button>
-              <el-select v-model="playbackSpeed" placeholder="请选择" style="width: 100px; margin-left: 10px;"
-                         @change="changePlaybackSpeed">
-                <el-option label="1x" value="1"></el-option>
-                <el-option label="0.75x" value="0.75"></el-option>
-                <el-option label="0.5x" value="0.5"></el-option>
-                <el-option label="0.25x" value="0.25"></el-option>
-              </el-select>
-              <el-button type="primary" size="small" @click="updateTechnique" style="margin-left: 2%;">
-                修改标注
-              </el-button>
-            </div>
+          </el-card>
+          <el-card style="margin-top: 20px; height: 452px">
+
+            <el-table
+                :row-style="{height:'12px'}"
+                :cell-style="{padding:'7px'}"
+                :data="testData"
+                style="width: 100%;font-size: 13px"
+                :row-class-name="tableRowClassName">
+              <el-table-column
+                  prop="date"
+                  label="种类"
+                  width="120">
+              </el-table-column>
+              <el-table-column
+                  prop="name"
+                  label="描述"
+                  width="435">
+              </el-table-column>
+            </el-table>
+
+
           </el-card>
         </el-col>
       </div>
+      <el-col :span="14">
+        <el-card class="box-card" style="margin-left: 30px; ">
+          <div class="demo1-video" style="margin-left: 20px;  width: 900px;height: 710px">
+
+            <el-form ref="form" label-width="70px" :inline="true" :model="form" :rules="rules"
+                     style="margin: 5px 10px">
+
+              <h3>整体质量</h3>
+              <el-form ref="form" label-width="70px" style="margin-top: 20px;" :inline="true"
+                       :model="form"
+                       :rules="rules">
+                <el-tooltip class="item" effect="dark" content="Right Bottom 提示文字" placement="left-start">
+                  <div slot="content">
+                    90-100分：表现完美，音色悦耳具有辨识度，技巧发挥成熟自然，<br/>情感张力大，能打动人心；<br/><br/>80-89分：
+                    表现良好，音色悦耳，技巧发挥成熟自然，<br/>有一定的情感表现；
+                    <br/><br/>70-79分： 个别音音准、节奏把握不准确，气息稳定，共鸣较好，<br/>但部分技巧使用发挥不够成熟，情感表现较弱；<br/><br/>60-69分：
+                    个别乐句音准、节奏把握不准确，音域也基本可以达到歌曲要求<br/>但整体的气息不够稳定，声乐技巧上的使用不够成熟，情感表现弱；
+                    <br/><br/>59分以下： 有1/3的音准节奏问题，音域达不到歌曲要求；<br/>其他共鸣技巧等发挥也都比较糟糕，大白嗓严重；
+                  </div>
+                  <el-button>评分</el-button>
+                </el-tooltip>
+                <el-form-item prop="score" style="margin-left: 90px">
+                  <el-input v-model="form.score" placeholder="请输入分数"></el-input>
+                </el-form-item>
+                <!--              <el-form-item>-->
+                <!--                <el-button @click="submit" type="primary">提交</el-button>-->
+                <!--              </el-form-item>-->
+              </el-form>
+              
+              <h3>旋律</h3>
+              <el-form ref="form" label-width="70px" style="margin-top: 20px;" :inline="true"
+                       :model="form"
+                       :rules="rules">
+                <el-tooltip class="item" effect="dark" content="Right Bottom 提示文字" placement="left-start">
+                  <div slot="content">
+                    90-100分：None，<br/>None；<br/><br/>80-89分：
+                    None，<br/>None；
+                    <br/><br/>70-79分： None，<br/>但部分技巧使用发挥不够成熟，情感表现较弱；<br/><br/>60-69分：
+                    个别乐句音准、节奏把握不准确，音域也基本可以达到歌曲要求<br/>但整体的气息不够稳定，声乐技巧上的使用不够成熟，情感表现弱；
+                    <br/><br/>59分以下： 有1/3的音准节奏问题，音域达不到歌曲要求；<br/>其他共鸣技巧等发挥也都比较糟糕，大白嗓严重；
+                  </div>
+                  <el-button>评分</el-button>
+                </el-tooltip>
+                <el-form-item prop="score2" style="margin-left: 90px">
+                  <el-input v-model="form.score2" placeholder="请输入分数"></el-input>
+                </el-form-item>
+                <!--              <el-form-item>-->
+                <!--                <el-button @click="submit" type="primary">提交</el-button>-->
+                <!--              </el-form-item>-->
+              </el-form>
+              
+              <h3>演唱</h3>
+              <el-form ref="form" label-width="70px" style="margin-top: 20px;" :inline="true"
+                       :model="form"
+                       :rules="rules">
+                <el-tooltip class="item" effect="dark" content="Right Bottom 提示文字" placement="left-start">
+                  <div slot="content">
+                    90-100分：表现完美，音色悦耳具有辨识度，技巧发挥成熟自然，<br/>情感张力大，能打动人心；<br/><br/>80-89分：
+                    表现良好，音色悦耳，技巧发挥成熟自然，<br/>有一定的情感表现；
+                    <br/><br/>70-79分： 个别音音准、节奏把握不准确，气息稳定，共鸣较好，<br/>但部分技巧使用发挥不够成熟，情感表现较弱；<br/><br/>60-69分：
+                    个别乐句音准、节奏把握不准确，音域也基本可以达到歌曲要求<br/>但整体的气息不够稳定，声乐技巧上的使用不够成熟，情感表现弱；
+                    <br/><br/>59分以下： 有1/3的音准节奏问题，音域达不到歌曲要求；<br/>其他共鸣技巧等发挥也都比较糟糕，大白嗓严重；
+                  </div>
+                  <el-button>评分</el-button>
+                </el-tooltip>
+                <el-form-item prop="score3" style="margin-left: 90px">
+                  <el-input v-model="form.score3" placeholder="请输入分数"></el-input>
+                </el-form-item>
+                <!--              <el-form-item>-->
+                <!--                <el-button @click="submit" type="primary">提交</el-button>-->
+                <!--              </el-form-item>-->
+              </el-form>
+              
+              <h3>编曲</h3>
+              <el-form ref="form" label-width="70px" style="margin-top: 20px;" :inline="true"
+                       :model="form"
+                       :rules="rules">
+                <el-tooltip class="item" effect="dark" content="Right Bottom 提示文字" placement="left-start">
+                  <div slot="content">
+                    90-100分：表现完美，音色悦耳具有辨识度，技巧发挥成熟自然，<br/>情感张力大，能打动人心；<br/><br/>80-89分：
+                    表现良好，音色悦耳，技巧发挥成熟自然，<br/>有一定的情感表现；
+                    <br/><br/>70-79分： 个别音音准、节奏把握不准确，气息稳定，共鸣较好，<br/>但部分技巧使用发挥不够成熟，情感表现较弱；<br/><br/>60-69分：
+                    个别乐句音准、节奏把握不准确，音域也基本可以达到歌曲要求<br/>但整体的气息不够稳定，声乐技巧上的使用不够成熟，情感表现弱；
+                    <br/><br/>59分以下： 有1/3的音准节奏问题，音域达不到歌曲要求；<br/>其他共鸣技巧等发挥也都比较糟糕，大白嗓严重；
+                  </div>
+                  <el-button>评分</el-button>
+                </el-tooltip>
+                <el-form-item prop="score4" style="margin-left: 90px">
+                  <el-input v-model="form.score4" placeholder="请输入分数"></el-input>
+                </el-form-item>
+                <!--              <el-form-item>-->
+                <!--                <el-button @click="submit" type="primary">提交</el-button>-->
+                <!--              </el-form-item>-->
+              </el-form>
+              
+              <h3>音频质量</h3>
+              <el-form ref="form" label-width="70px" style="margin-top: 20px;" :inline="true"
+                       :model="form"
+                       :rules="rules">
+                <el-tooltip class="item" effect="dark" content="Right Bottom 提示文字" placement="left-start">
+                  <div slot="content">
+                    90-100分：表现完美，音色悦耳具有辨识度，技巧发挥成熟自然，<br/>情感张力大，能打动人心；<br/><br/>80-89分：
+                    表现良好，音色悦耳，技巧发挥成熟自然，<br/>有一定的情感表现；
+                    <br/><br/>70-79分： 个别音音准、节奏把握不准确，气息稳定，共鸣较好，<br/>但部分技巧使用发挥不够成熟，情感表现较弱；<br/><br/>60-69分：
+                    个别乐句音准、节奏把握不准确，音域也基本可以达到歌曲要求<br/>但整体的气息不够稳定，声乐技巧上的使用不够成熟，情感表现弱；
+                    <br/><br/>59分以下： 有1/3的音准节奏问题，音域达不到歌曲要求；<br/>其他共鸣技巧等发挥也都比较糟糕，大白嗓严重；
+                  </div>
+                  <el-button>评分</el-button>
+                </el-tooltip>
+                <el-form-item prop="score5" style="margin-left: 90px">
+                  <el-input v-model="form.score5" placeholder="请输入分数"></el-input>
+                </el-form-item>
+                <!--              <el-form-item>-->
+                <!--                <el-button @click="submit" type="primary">提交</el-button>-->
+                <!--              </el-form-item>-->
+              </el-form>
+              
+              <el-button size="mini">流派是否正确</el-button>
+              &nbsp&nbsp&nbsp
+              &nbsp&nbsp&nbsp
+              <el-radio-group v-model="radio" @input="dayin11" style="padding-left: 25px">
+                <el-radio :label="1">是</el-radio>
+                <el-radio :label="0">否</el-radio>
+              </el-radio-group>
+              &nbsp&nbsp&nbsp&nbsp&nbsp
+
+              <el-select v-model="value" @change="dylog" :disabled="isable" placeholder="请选择" size="mini">
+                <el-option
+                    v-for="item in options"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value">
+                </el-option>
+              </el-select>
+              <br>
+              
+
+              
+              <el-button style="margin-left: 25vh" @click="submit" type="primary">提交</el-button>
+              <br>
+              <!--              <el-divider style="margin-top: 10px"></el-divider>-->
+              
+
+              
+
+              
+
+            </el-form>
+
+          </div>
+        </el-card>
+      </el-col>
+
     </div>
-    <div>
-      <el-button type="primary" size="small" @click="chanyin"
-                 style="margin-top: 4%;margin-left: 25%;width: 150px;height: 60px" class="technique-button 颤音"
-                 :disabled="techniqueClicked && type !== '颤音'">颤音
-      </el-button>
-      <el-button type="primary" size="small" @click="huayin"
-                 style="margin-top: 4%;margin-left: 6%;width: 150px;height: 60px" class="technique-button 滑音"
-                 :disabled="techniqueClicked && type !== '滑音'">滑音
-      </el-button>
-      <el-button size="small" @click="remake" style="margin-top: 4%;margin-left: 10%;width: 150px;height: 60px"
-                 class="technique-button dialog-box-center">重新标注
-      </el-button>
-      <el-button size="small" @click="mark()" style="margin-top: 4%;margin-left: 3%;width: 150px;height: 60px"
-                 class="technique-button dialog-box-center" :disabled="techniqueClicked">查看已标注技巧
-      </el-button>
-      <br>
-      <el-button type="primary" size="small" @click="qipaoyin"
-                 style="margin-top: 5%;margin-left: 16%;width: 150px;height: 60px" class="technique-button 气泡音"
-                 :disabled="techniqueClicked && type !== '气泡音'">气泡音
-      </el-button>
-      <el-button type="primary" size="small" @click="jiasheng"
-                 style="margin-top: 5%;margin-left: 6%;width: 150px;height: 60px" class="technique-button 假声"
-                 :disabled="techniqueClicked && type !== '假声'">假声
-      </el-button>
-      <el-button type="primary" size="small" @click="zhuanyin"
-                 style="margin-top: 5%;margin-left: 6%;width: 150px;height: 60px" class="technique-button 转音"
-                 :disabled="techniqueClicked && type !== '转音'">转音
-      </el-button>
-      <el-button size="small" @click="musicNext" style="margin-top: 5%;margin-left: 8%;width: 200px;height: 80px"
-                 class="technique-button dialog-box-center" :disabled="techniqueClicked">下一首
-      </el-button>
-    </div>
-    <el-dialog
-        title="提示"
-        :visible.sync="copy2Visible"
-        width="50%"
-        :before-close="listClose2">
-      <el-table
-          stripe
-          height="65vh"
-          :data="scoreclip"
-          style="width: 100%"
-      >
-        <el-table-column
-            prop="type"
-            label="类型">
-        </el-table-column>
-        <el-table-column
-            prop="start_time"
-            label="开始时间">
-        </el-table-column>
-        <el-table-column
-            prop="end_time"
-            label="结束时间">
-        </el-table-column>
-        <el-table-column>
-          <template slot-scope="scope">
-            <!--            <el-button size="mini" @click="clipEdit(scope.row)">编辑</el-button>-->
-            <el-button type="danger" size="mini" @click="clipDelete(scope.row)">删除</el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-    </el-dialog>
   </div>
 </template>
+
 <script>
 
 import APlayer from 'vue-aplayer'
 import {
   getSongs,
   getASongRandom,
-  createMarkedClip, getUserClips, deleteAMarkedClip, getAClipSongRandom, updateAMarkedClip,
+  createMarkedScore,
+  createMarkedClip,
+  createMarkedDimensionScore,
+  updateMusicGenre, updateMusicHarmonyQuantity,
+  createDimensionScore
 } from "@/api/api";
 import {user_id} from "@/store/getters";
 
 function realFormatSecond(second) {
-  console.log("Input second: ", second);
-  var secondType = typeof second;
+  var secondType = typeof second
+
   if (secondType === 'number' || secondType === 'string') {
-    second = parseFloat(second);
+    second = parseInt(second)
 
-    var hours = Math.floor(second / 3600);
-    second = second - hours * 3600;
-    var minutes = Math.floor(second / 60);
-    var sec = second % 60; // 获取秒数，包括小数
+    var hours = Math.floor(second / 3600)
+    second = second - hours * 3600
+    var mimute = Math.floor(second / 60)
+    second = second - mimute * 60
 
-    // 格式化时间，保留小数点后三位
-    return hours + ':' + ('0' + minutes).slice(-2) + ':' + sec.toFixed(3);
+    return hours + ':' + ('0' + mimute).slice(-2) + ':' + ('0' + second).slice(-2)
   } else {
-    return '0:00:00.000';
+    return '0:00:00'
   }
 }
 
@@ -244,21 +295,31 @@ export default {
   data() {
     return {
       Visible: true,
+      radio: 1,
+      ///radio1: -1,
+      ///radio2: -1,
+      ///radio3: -1,
+      ///radio4: -1,
+      ///radio5: -1,
+      ///radio6: -1,
+      ///radio7: -1,
+      ///radio8: -1,
+      ///radio9: -1,
+      ///radio10: '',
+      radio11: '',
       ismark: [],
       form: {
         score: '',
+        score2: '', ///
+        score3: '', ///
+        score4: '', ///
+        score5: '', ///
+        
         clip_score: '',
         dimension_score: ''
       },
       // startTime: '',
       // endTime: '',
-      toggleStartEnd: true,
-      techniqueClicked: false,
-      audioSource: '', // 歌曲的源文件路径
-      editStartTime: 0, // 修正技巧的起始时间
-      editEndTime: 0, // 修正技巧的结束时间
-      startLinePosition: '0%',
-      endLinePosition: '0%',
       audio: {
         currentTime: 0,
         maxTime: 0,
@@ -268,13 +329,17 @@ export default {
         // waiting: true,
         preload: 'auto'
       },
-      scoreclip: [],
-      clipData: {
-        user_id: 0,
-        music_id: 0,
-      },
-      techniqueMarkers: [],
       sliderTime: 0,
+      crules: {
+        dimension_score: [
+          {required: true, trigger: 'blur', message: '请输入维度分数'}
+        ]
+      },
+      rules: {
+        score: [
+          {required: true, trigger: 'blur', message: '请输入分数'}
+        ]
+      },
       playIcon: require("../assets/play.png"),
       plozeIcon: require("../assets/ploze.png"),
       vulumnIcon: require("../assets/vulumn.png"),
@@ -289,31 +354,43 @@ export default {
       isone: 1,
       start_time: -1,
       end_time: -1,
-
-      playbackSpeed: 1,
-      isDragging: false, //
       bb: '00',
       cc: '00',
       dd: '00',
       ee: '00',
-      dragStartX: 0,
-      isAdjustDialogVisible: false,
-      adjustMin: 0,
-      adjustMax: 0,
-      adjustedRange: [0, 0],
-      currentTechnique: null, // 当前选中的技巧片段
-      showRedLines: false,
-      draggingLine: null,
-      audioClipStart: 0, // 技巧片段的开始时间
-      audioClipEnd: 0, // 技巧片段的结束时间
-      copy2Visible: false,
-      currentClipId: null,
-      ishs: '',
+      ///clip1: '',
+      ///clip2: '',
+      ///clip3: '',
+      ///clip4: '',
+      ///clip5: '',
+      ///clip6: '',
+      ///clip7: '',
+      ///clip8: '',
+      ///clip9: '',
+      clip10: '',
+      ///type1: '音色与辨识度',
+      ///type2: '音量与音域',
+      ///type3: '音准、节奏',
+      ///type4: '发音咬字',
+      ///type5: '常规技巧',
+      ///type6: '个性化技巧',
+      ///type7: '戏剧性',
+      ///type8: '叙事性',
+      ///type9: '熟悉度',
+      type10: '加权平均分',
+
+      dimension_type: '维度1',///
+      dimension_type2: '维度2',///
+      dimension_type3: '维度3',///
+      dimension_type4: '维度4',///
+      dimension_type5: '维度5',///
+
+      ///ishs: '',
       isable: true,
       isliupai: 1,
       new_genre: "",
       genre: "",
-      type: 'none',
+      type: -1,
       test: 1,
       sb: false,
       id: "",
@@ -321,73 +398,66 @@ export default {
       singer: "",
       index: 0, // 当前播放的音乐索引
       playedMusic: [],
+      options: [{
+        value: '抒情流行',
+        label: '抒情流行'
+      }, {
+        value: 'R&B',
+        label: 'R&B'
+      }, {
+        value: '摇滚',
+        label: '摇滚'
+      }, {
+        value: '民谣',
+        label: '民谣'
+      }],
       value: '',
       label: '',
-      isSliderReady: false, // 控制 el-slider 渲染的标志
+      testData: [{
+        date: '音色与辨识度',
+        name: '歌手是否有明确的音色特点（如磁性、浑厚、清亮、纯净、温暖、丰满等）；\n' +
+            '声音是否具有辨识度；',
+      }, {
+
+        date: '音量与音域',
+        name: '音域范围；\n' +
+            '动态范围（音量）；',
+      }, {
+        date: '音准、节奏',
+        name: '音准、节奏把握是否准确',
+      }, {
+        date: '发音咬字',
+        name: '发音咬字（吐字、归韵收音）是否清晰自然',
+      }, {
+        date: '常规技巧',
+        name: '有效的气息管理：气息的平稳度、控制力强、自然的换气。\n' +
+            '\n' +
+            ' 共鸣（胸腔、头腔、鼻腔等）、声区转换平稳统一。\n',
+
+      }, {
+        date: '个性化技巧',
+        name: '真假声转换及装饰音运用，滑音、颤音、跳音、转音、气泡声等技巧。',
+
+      }, {
+        date: '戏剧性',
+        name: '段落、乐句的情绪对比；声音的穿透力、爆发力',
+
+      }, {
+        date: '叙事性',
+        name: '\n' +
+            '将语言中的语气感融入演唱技巧中，声音打动人心；\n',
+      },
+      ]
     }
   },
-  computed: {
-    techniqueRanges() {
-      if (!this.audio.maxTime) return [];
-
-      return this.techniqueMarkers.map(marker => {
-        return {
-          type: marker.type,
-          startPct: (marker.start_time / this.audio.maxTime) * 100,
-          endPct: (marker.end_time / this.audio.maxTime) * 100,
-          startTime: marker.start_time,
-          endTime: marker.end_time,
-          clipId: marker.clip_id // 确保包含 clip_id
-        };
-      });
-    },
-    startLinePosition() {
-      // 计算开始红线的位置
-      return this.calculateLinePosition(this.currentTechnique.startTime);
-    },
-    endLinePosition() {
-      // 计算结束红线的位置
-      return this.calculateLinePosition(this.currentTechnique.endTime);
-    },
-    startLineTimeText() {
-      return this.formatTimeText(this.currentTechnique.startTime);
-    },
-    endLineTimeText() {
-      return this.formatTimeText(this.currentTechnique.endTime);
-    },
-  },
-
-
-  watch: {
-    // 监听 adjustedRange 的变化
-    adjustedRange(newValue) {
-      if (newValue && Array.isArray(newValue) && newValue.length === 2) {
-        console.log('Adjusted Range Updated:', newValue);
-      } else {
-        console.error('Invalid adjustedRange:', newValue);
-      }
-    },
-
-    // 当主页面的 currentTime 改变时，更新弹窗中的进度条
-    'audio.currentTime'(newValue) {
-      // 仅在弹窗可见时进行同步
-      if (this.isAdjustDialogVisible) {
-        this.adjustedRange = [newValue, this.adjustedRange[1]];
-      }
-    }
-  },
-
-
   mounted() {
     // this.getMusic()
     this.init();
     this.getAudioDuration()
-    window.addEventListener('keydown', this.handleSpacebar);
   },
-  // beforeDestroy() {
-  //   // Remove keydown event listener
-  //   window.removeEventListener('keydown', this.handleSpacebar);
-  // },
+  beforeDestroy() {
+    this.isShow = true
+  },
   filters: {
     // 使用组件过滤器来动态改变按钮的显示
     // transPlayPause(value) {
@@ -395,11 +465,7 @@ export default {
     // },
     // 将整数转化成时分秒
     formatSecond(second = 0) {
-      console.log("过滤器接收到的时间:", second);
-      second = parseFloat(second);
-      var wholeSeconds = Math.floor(second); // 获取整数秒
-      var milliseconds = (second % 1).toFixed(3).substring(2); // 获取毫秒，保留三位小数
-      return `${wholeSeconds.toString().padStart(2, '0')}.${milliseconds}`;
+      return realFormatSecond(second)
     }
   },
   methods: {
@@ -421,7 +487,6 @@ export default {
         that.sliderMax = Math.floor(that.box.duration);
         that.updateTime();
       };
-
       // 当前数据可用是触发
       this.box.oncanplay = function () {
         console.log("已经可以播放了");
@@ -440,249 +505,60 @@ export default {
         console.log("加载出错！");
       };
     },
-    openAdjustDialog() {
-      if (this.currentClipId) {
-        this.showAdjustDialog(this.currentClipId); // 假设您有一个方法来处理显示对话框
+    ///dayin1(val) {
+    ///  console.log(val)
+    ///  this.clip1 = val
+    ///},
+    ///dayin2(val) {
+    ///  console.log(val)
+    ///  this.clip2 = val
+    ///},
+    ///dayin3(val) {
+    ///  console.log(val)
+    ///  this.clip3 = val
+    ///},
+    ///dayin4(val) {
+    ///  console.log(val)
+    ///  this.clip4 = val
+    ///},
+    ///dayin5(val) {
+    ///  console.log(val)
+    ///  this.clip5 = val
+    ///},
+    ///dayin6(val) {
+    ///  console.log(val)
+    ///  this.clip6 = val
+    ///},
+    ///dayin7(val) {
+    ///  console.log(val)
+    ///  this.clip7 = val
+    ///},
+    ///dayin8(val) {
+    ///  console.log(val)
+    ///  this.clip8 = val
+    ///},
+    ///dayin9(val) {
+    ///  console.log(val)
+    ///  this.clip9 = val
+    ///},
+    ///dayin10(val) {
+    ///  this.ishs = val
+    ///  console.log(this.ishs)
+    ///},
+    dayin11(val) {
+      console.log(val)
+      this.isliupai = val
+      if (this.isliupai === 0) {
+        this.isable = false
       } else {
-        this.$message({
-          type: 'warning',
-          message: '请选择技巧片段'
-        });
+        this.isable = true
       }
     },
-    getTechniqueColor(technique) {
-      switch (technique) {
-        case '颤音':
-          return 'RoyalBlue';
-        case '滑音':
-          return 'DarkCyan';
-        case '气泡音':
-          return 'Violet';
-        case '假声':
-          return 'DarkGoldenrod';
-        case '转音':
-          return 'Indigo';
-          // Add other cases as needed
-        default:
-          return 'white';
+    dylog(setval) {
+      if (this.isliupai === 0) {
+        this.new_genre = setval
+        console.log(this.new_genre)
       }
-    },
-
-    addTechniqueMarker(newMarker) {
-      this.techniqueMarkers.push(newMarker);
-    },
-    playTechnique(startTime, endTime) {
-      // 设置音频播放器的当前时间为技巧的起始时间
-      this.box.currentTime = startTime;
-      // 开始播放
-      this.box.play();
-
-      const checkTime = () => {
-        // 当前时间接近或超过结束时间时暂停播放
-        if (this.box.currentTime >= endTime) {
-          this.box.pause();
-        } else {
-          // 继续检查
-          requestAnimationFrame(checkTime);
-        }
-      };
-
-      // 开始检查
-      checkTime();
-    },
-    formatTimeText(time) {
-      if (!time && time !== 0) return '0.000';
-      return time.toFixed(3);
-    },
-    // Method to delete a technique marker
-    deleteTechniqueMarker(clipId) {
-      this.techniqueMarkers = this.techniqueMarkers.filter(marker => marker.clip_id !== clipId);
-    },
-
-    // Example method to handle deletion from a UI action
-    handleDelete(clipId) {
-      // Call your API to delete the technique
-      deleteAMarkedClip(clipId).then(() => {
-        // On successful deletion, update the local state
-        this.deleteTechniqueMarker(clipId);
-      }).catch(error => {
-        console.error('Error deleting technique:', error);
-      });
-    },
-
-
-    showAdjustDialog(clipId) {
-      const technique = this.techniqueMarkers.find(t => t.clip_id === clipId);
-      if (!technique) {
-        console.error("找不到对应的技巧标记");
-        return;
-      }
-      console.log("技巧片段数据:", technique);
-      // 设置当前技巧片段的歌手和歌曲名，以及开始和结束时间
-      this.currentTechnique = {
-        id: clipId,
-        singer: this.singer,
-        name: this.name,
-        start_time: technique.start_time,
-        end_time: technique.end_time
-      };
-
-      const startTime = isFinite(technique.start_time) ? technique.start_time : 0;
-      const endTime = isFinite(technique.end_time) ? technique.end_time : 5;
-      console.log("转换后的开始时间:", startTime, "转换后的结束时间:", endTime); // 调试信息
-      // 使用经过验证的 startTime 和 endTime 初始化 adjustedRange
-      this.isSliderReady = true; // 当一切准备就绪后，设置为 true 以渲染 slider
-      this.$nextTick(() => {
-        this.adjustedRange = [
-          Math.max(0, startTime - 1), // 开始时间前1秒
-          Math.min(this.audio.maxTime, endTime + 1) // 结束时间后1秒
-        ];
-      });
-      console.log("wcy", this.adjustedRange)
-      this.isAdjustDialogVisible = true;
-
-    },
-
-    saveAdjustedRange() {
-      // 获取更新的时间范围
-      const updatedStartTime = this.adjustedRange[0];
-      const updatedEndTime = this.adjustedRange[1];
-
-      // 创建请求体
-      const requestBody = {
-        clip_id: this.currentClipId,
-        new_start_time: updatedStartTime,
-        new_end_time: updatedEndTime
-      };
-
-      // 调用 API 方法进行更新
-      updateAMarkedClip(requestBody)
-          .then(response => {
-            // 成功处理
-            this.$message({
-              type: 'success',
-              message: '技巧标注已更新!'
-            });
-            this.isAdjustDialogVisible = false;
-
-            // 找到并更新对应的技巧标记
-            const index = this.techniqueMarkers.findIndex(marker => marker.clip_id === this.currentClipId);
-            if (index !== -1) {
-              this.techniqueMarkers[index].start_time = updatedStartTime;
-              this.techniqueMarkers[index].end_time = updatedEndTime;
-              // 重新计算百分比位置
-              this.techniqueMarkers[index].startPct = (updatedStartTime / this.audio.maxTime) * 100;
-              this.techniqueMarkers[index].endPct = (updatedEndTime / this.audio.maxTime) * 100;
-            }
-
-            // 如果需要，触发横条技巧显示的更新
-            this.refreshTechniqueDisplay();
-          })
-          .catch(error => {
-            // 错误处理
-            console.error('更新失败:', error);
-            this.$message({
-              type: 'error',
-              message: '更新失败!'
-            });
-          });
-    },
-
-    refreshTechniqueDisplay() {
-      // 此方法中可以包含重新计算和渲染横条技巧显示的逻辑
-      // 这可能包括强制组件重新渲染或调用特定的更新方法
-    },
-
-
-    mark() {
-      this.clipData.music_id = this.id
-      this.clipData.user_id = sessionStorage.getItem('user_id');
-      getUserClips(this.clipData).then(response => {
-        this.scoreclip = response.data
-        console.log(this.scoreclip)
-
-        console.log("Technique Markers:", this.techniqueMarkers);
-        // console.log(response.data)
-      })
-      this.copy2Visible = true
-    },
-    listClose2() {
-      // this.$refs.form.resetFields()
-      this.copy2Visible = false
-    },
-    rewindOneSecond() {
-      if (this.box.currentTime > 1) {
-        this.box.currentTime -= 1;
-      } else {
-        this.box.currentTime = 0;
-      }
-    },
-
-    forwardOneSecond() {
-      if (this.box.currentTime < this.box.duration - 1) {
-        this.box.currentTime += 1;
-      } else {
-        this.box.currentTime = this.box.duration;
-      }
-    },
-    // When a new song is loaded
-    loadNewSong(newSong) {
-      this.audio.maxTime = newSong.duration;
-      this.techniqueMarkers = []; // Clear old markers
-      // ... Load the new song ...
-    },
-
-    clipDelete(clip_id) {
-      this.$confirm('此操作将永久删除该文件, 是否继续?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        deleteAMarkedClip(clip_id).then(response => {
-          if (response.status === 200) {
-            this.$message({
-              type: 'success',
-              message: '删除成功!'
-            });
-            // 删除后更新技巧标记数组
-            this.fetchAndUpdateTechniqueMarkers();
-            if (this.currentTechnique && this.currentTechnique.id === clip_id) {
-              this.currentTechnique = null;
-              this.showRedLines = false;
-            }
-          }
-        }).catch(error => {
-          console.error('Error deleting technique:', error);
-          this.$message({
-            type: 'error',
-            message: '删除失败!'
-          });
-        });
-      }).catch(() => {
-        this.$message({
-          type: 'info',
-          message: '已取消删除'
-        });
-      });
-
-    },
-
-    fetchAndUpdateTechniqueMarkers() {
-      getUserClips(this.clipData).then(response => {
-        this.scoreclip = response.data;
-        this.techniqueMarkers = this.scoreclip.map(clip => ({
-          type: clip.type,
-          clip_id: clip.clip_id,
-          start_time: clip.start_time,
-          end_time: clip.end_time
-        }));
-        console.log("Updated techniqueMarkers:", this.techniqueMarkers);
-      }).catch(error => {
-        console.error('Error fetching technique markers:', error);
-      });
-    },
-    changePlaybackSpeed() {
-      this.box.playbackRate = this.playbackSpeed;
     },
     getSkillValue() {
       this.type = this.value
@@ -702,215 +578,290 @@ export default {
       }, 1000);
     },
     chanyin() {
-      if (!this.techniqueClicked) {
-        this.type = '颤音';
-        console.log(this.type);
-        this.start();
-        this.techniqueClicked = true;
-      } else {
-        this.end();
-        this.techniqueClicked = false;
-      }
-    },
-    huayin() {
-      if (!this.techniqueClicked) {
-        this.type = '滑音';
-        console.log(this.type);
-        this.start();
-        this.techniqueClicked = true;
-      } else {
-        this.end();
-        this.techniqueClicked = false;
-      }
-    },
-    jiasheng() {
-      if (!this.techniqueClicked) {
-        this.type = '假声';
-        console.log(this.type);
-        this.start();
-        this.techniqueClicked = true;
-      } else {
-        this.end();
-        this.techniqueClicked = false;
-      }
-    },
-    zhuanyin() {
-      if (!this.techniqueClicked) {
-        this.type = '转音';
-        console.log(this.type);
-        this.start();
-        this.techniqueClicked = true;
-      } else {
-        this.end();
-        this.techniqueClicked = false;
-      }
-    },
-    qipaoyin() {
-      if (!this.techniqueClicked) {
-        this.type = '气泡音';
-        // console.log(this.type);
-        this.start();
-        this.techniqueClicked = true;
-      } else {
-        this.end();
-        this.techniqueClicked = false;
-      }
+      this.type = '颤音'
+      console.log(this.type)
     },
     start() {
-      if (!this.techniqueClicked) {
-        let aa = Math.floor(this.audio.currentTime);
-        this.bb = Math.floor(aa / 60);
-        this.cc = Math.floor(aa % 60);
-        this.start_time = this.audio.currentTime;
-        if (this.bb >= 0 && this.bb < 10) {
-          this.bb = '0' + this.bb;
-        }
-        if (this.cc >= 0 && this.cc < 10) {
-          this.cc = '0' + this.cc;
-        }
-        console.log("start");
-        console.log(this.bb + ':' + this.cc);
-        console.log(this.start_time);
-        this.techniqueClicked = true;
-      } else {
-        this.end();
+      let aa = Math.floor(this.audio.currentTime)
+      this.bb = Math.floor(aa / 60)
+      this.cc = Math.floor(aa % 60)
+      this.start_time = this.audio.currentTime
+      if (this.bb >= 0 && this.bb < 10) {
+        this.bb = '0' + this.bb
       }
+      if (this.cc >= 0 && this.cc < 10) {
+        this.cc = '0' + this.cc
+      }
+      console.log(this.bb + ':' + this.cc)
+      // console.log(aa)
+      console.log(this.start_time)
     },
-// 更新“修改标注”按钮的事件处理函数
-    updateTechnique() {
-      if (!this.currentClipId) {
-        this.$message({
-          type: 'warning',
-          message: '请选择技巧片段'
-        });
-        return;
-      }
-
-      // 从 currentTechnique 获取更新后的时间
-      const updatedStartTime = this.currentTechnique.startTime;
-      const updatedEndTime = this.currentTechnique.endTime;
-
-      // 检查时间范围是否有效
-      if (updatedStartTime >= updatedEndTime) {
-        this.$message({
-          type: 'error',
-          message: '错误: 技巧片段的起始时间必须小于结束时间'
-        });
-        return; // 阻止进一步操作
-      }
-
-      // 创建请求体
-      const requestBody = {
-        clip_id: this.currentClipId,
-        new_start_time: updatedStartTime,
-        new_end_time: updatedEndTime
-      };
-
-      // 调用 API 更新技巧标注
-      updateAMarkedClip(requestBody).then(response => {
-        // 处理成功的响应
-        this.$message({
-          type: 'success',
-          message: '技巧标注已更新!'
-        });
-
-        // 更新本地技巧标记
-        const index = this.techniqueMarkers.findIndex(marker => marker.clip_id === this.currentClipId);
-        if (index !== -1) {
-          this.techniqueMarkers[index].start_time = updatedStartTime;
-          this.techniqueMarkers[index].end_time = updatedEndTime;
-          this.techniqueMarkers[index].startPct = (updatedStartTime / this.audio.maxTime) * 100;
-          this.techniqueMarkers[index].endPct = (updatedEndTime / this.audio.maxTime) * 100;
-        }
-      }).catch(error => {
-        // 处理错误
-        console.error('更新失败:', error);
-        this.$message({
-          type: 'error',
-          message: '更新失败!'
-        });
-      });
-    },
-
-
     end() {
-      let ff = Math.floor(this.audio.currentTime);
-      this.dd = Math.floor(ff / 60);
-      this.ee = Math.floor(ff % 60);
-      this.end_time = this.audio.currentTime;
-
+      let ff = Math.floor(this.audio.currentTime)
+      this.dd = Math.floor(ff / 60)
+      this.ee = Math.floor(ff % 60)
+      this.end_time = this.audio.currentTime
       if (this.dd >= 0 && this.dd < 10) {
-        this.dd = '0' + this.dd;
+        this.dd = '0' + this.dd
       }
       if (this.ee >= 0 && this.ee < 10) {
-        this.ee = '0' + this.ee;
+        this.ee = '0' + this.ee
       }
-
-      // 检查时间范围是否有效
-      if (this.start_time >= this.end_time) {
+    },
+    inputpd() {
+      if (this.start_time === -1) {
         this.$message({
-          type: 'error',
-          message: '错误: 技巧片段的起始时间必须小于结束时间'
+          type: 'false',
+          message: '未选择起始时间!'
         });
-        return; // 阻止进一步操作
+      } else if (this.end_time === -1) {
+        this.$message({
+          type: 'false',
+          message: '未选择结束时间!'
+        });
+      } else {
+        createMarkedClip({
+          'user_id': sessionStorage.getItem('user_id'),
+          'music_id': this.id,
+          'start_time': this.start_time,
+          'end_time': this.end_time,
+        }).then(response => {
+          // console.log(response.data)
+          this.start_time = -1
+          this.end_time = -1
+          console.log(this.form.clip_score)
+          console.log(this.start_time)
+          this.$message({
+            type: 'success',
+            message: '提交成功!'
+          });
+        })
       }
-
-      // 创建新标记
-      const formattedStartTime = realFormatSecond(this.start_time);
-      const formattedEndTime = realFormatSecond(this.end_time);
-      const newMarker = {
-        type: this.type,
-        start_time: this.start_time,
-        end_time: this.end_time,
-        formattedStartTime: formattedStartTime,
-        formattedEndTime: formattedEndTime,
-        startPct: (this.start_time / this.audio.maxTime) * 100,
-        endPct: (this.end_time / this.audio.maxTime) * 100,
-      };
-
-      console.log("New marker: ", newMarker); // 调试信息
-      this.techniqueMarkers.push(newMarker);
-
-      // 提交新标记到后端
-      createMarkedClip({
+    },
+    newMarkedDimensionScore() {
+      if (this.form.dimension_score === '') {
+        this.form.dimension_score = -1
+      }
+      createMarkedDimensionScore({
         'user_id': sessionStorage.getItem('user_id'),
         'music_id': this.id,
-        'start_time': this.start_time,
-        'end_time': this.end_time,
-        'type': this.type
-      }).then(response => {
-        this.start_time = -1;
-        this.end_time = -1;
-        this.type = 'none';
+        'dimension': this.type,
+        'dimension_score': this.form.dimension_score,
+      })
+    },
+    clipsubmit() {
+      if (this.form.clip_score === '') {
         this.$message({
-          type: 'success',
-          message: '提交成功!'
+          type: 'false',
+          message: '未输入局部分!'
         });
-        // 更新技巧标记
-        this.getclip();
-      });
-
-      // 重置技巧点击状态
-      this.techniqueClicked = false;
+      } else if (this.start_time === -1) {
+        this.$message({
+          type: 'false',
+          message: '未选择起始时间!'
+        });
+      } else if (this.end_time === -1) {
+        this.$message({
+          type: 'false',
+          message: '未选择结束时间!'
+        });
+      } else if (this.type === -1) {
+        this.$message({
+          type: 'false',
+          message: '未选择分类!'
+        });
+      } else {
+        createMarkedClip({
+          'user_id': sessionStorage.getItem('user_id'),
+          'music_id': this.id,
+          'clip_score': this.form.clip_score,
+          'start_time': this.start_time,
+          'end_time': this.end_time,
+          'type': this.type
+        }).then(response => {
+          // console.log(response.data)
+          this.form.clip_score = ''
+          this.start_time = -1
+          this.end_time = -1
+          this.type = -1
+          console.log(this.form.clip_score)
+          console.log(this.start_time)
+          this.$message({
+            type: 'success',
+            message: '提交成功!'
+          });
+        })
+      }
     },
 
+    async submit() {
+      console.log('score', this.form.score);///
+      console.log('score2:', this.form.score2);///
+      console.log('score3:', this.form.score3);///
+      console.log('score4:', this.form.score4);///
+      console.log('score5:', this.form.score5);///
+      if (this.form.score === '') {
+        this.$message({
+          type: 'false',
+          message: '未输入分数!'
+        });
+      } else {
+        if (this.form.score > 100 || this.form.score < 0) {
+          this.$message({
+            type: 'false',
+            message: '分数在0-100之间!'
+          });
+        } else if (this.form.score2 === '' || this.form.score3 === '' || this.form.score4 === '' || this.form.score5 === '') {
+          this.$message({
+            type: 'false',
+            message: '有维度未标注!'
+          });
+        } else {
+          
+          ///this.radio1 = ''
+          ///this.radio2 = ''
+          ///this.radio3 = ''
+          ///this.radio4 = ''
+          ///this.radio5 = ''
+          ///this.radio6 = ''
+          ///this.radio7 = ''
+          ///this.radio8 = ''
+          ///this.clip1 = ''
+          ///this.clip2 = ''
+          ///this.clip3 = ''
+          ///this.clip4 = ''
+          ///this.clip5 = ''
+          ///this.clip6 = ''
+          ///this.clip7 = ''
+          ///this.clip8 = ''
+          ///this.type = this.type9
+          ///this.form.dimension_score = this.clip9
+          ///this.radio9 = ''
+          ///await this.newMarkedDimensionScore()
+          ///this.clip9 = ''
+          if (this.isliupai === 1) {
+            this.new_genre = this.genre
+          }
+          await updateMusicGenre({'new_genre': this.new_genre, 'music_id': this.id})
+          ///await updateMusicHarmonyQuantity({'music_id': this.id, 'new_harmony_quantity': this.ishs})
+          ///this.radio10 = ''
+          this.radio = 1
+          this.isliupai = 1
+          this.isable = true
+          this.value = ''
+          await createMarkedScore({
+            'user_id': sessionStorage.getItem('user_id'),
+            'music_id': this.id,
+            'score': this.form.score
+          }).then(response => {
+            // console.log(response.data)
+            this.$message({
+              type: 'success',
+              message: '提交成功!'
+            });
+          })
+          ///
+          await createDimensionScore({
+            'user_id': sessionStorage.getItem('user_id'),
+            'music_id': this.id,
+            'dimension_score': this.form.score2,
+            'dimension': this.dimension_type2
+          }).then(response => {
+            // console.log(response.data)
+            this.$message({
+              type: 'success',
+              message: '提交成功!'
+            });
+          })
+          ///
 
-    remake() {
-      // 重置起始和结束时间
-      this.start_time = -1;
-      this.end_time = -1;
-      this.type = 'none'
+          await createDimensionScore({
+            'user_id': sessionStorage.getItem('user_id'),
+            'music_id': this.id,
+            'dimension_score': this.form.score3,
+            'dimension': this.dimension_type3
+          }).then(response => {
+            // console.log(response.data)
+            this.$message({
+              type: 'success',
+              message: '提交成功!'
+            });
+          })
+          ///
 
-      // 重置时间显示
-      this.bb = '00';
-      this.cc = '00';
-      this.dd = '00';
-      this.ee = '00';
+          await createDimensionScore({
+            'user_id': sessionStorage.getItem('user_id'),
+            'music_id': this.id,
+            'dimension_score': this.form.score4,
+            'dimension': this.dimension_type4
+          }).then(response => {
+            // console.log(response.data)
+            this.$message({
+              type: 'success',
+              message: '提交成功!'
+            });
+          })
+          ///
 
-      // 解除技巧按钮的禁用状态
-      this.techniqueClicked = false;
-      console.log(this.start_time)
-      // 可以在这里添加任何其他需要重置的状态
+          await createDimensionScore({
+            'user_id': sessionStorage.getItem('user_id'),
+            'music_id': this.id,
+            'dimension_score': this.form.score5,
+            'dimension': this.dimension_type5
+          }).then(response => {
+            // console.log(response.data)
+            this.$message({
+              type: 'success',
+              message: '提交成功!'
+            });
+          })
+          ///
+          
+          this.form.score = ''
+          this.ismark[this.index] = 1
+          if (this.index === this.playedMusic.length) {
+            // console.log("新歌")
+            await getASongRandom({'user_id': sessionStorage.getItem('user_id')}).then(response => {
+              if (response.data === "没有需要标注的歌曲") {
+                this.sb = true
+                this.$refs.audio.pause()
+              } else {
+                this.id = response.data.music_id
+                this.name = response.data.music_name
+                this.singer = response.data.singer
+                this.genre = response.data.genre
+                // console.log("1111111111111")
+                this.src = require('@/assets/mp3/' + this.singer + '-' + this.name + '_(Vocals)' + '.wav')
+                // this.src = require(" "+response.data.src)
+                this.$refs.audio.src = this.src;
+                this.play = true;
+                this.box.play();
+                this.playedMusic.push({
+                  'music_id': this.id,
+                  'music_name': this.name,
+                  'singer': this.singer,
+                  'src': this.src,
+                  'genre': this.genre
+                })
+                this.index++;
+              }
+            })
+          } else {
+            // console.log("旧歌")
+            var music = this.playedMusic[this.index];
+            // console.log(music)
+            this.id = music.music_id;
+            this.name = music.music_name;
+            this.singer = music.singer;
+            this.genre = music.genre;
+            this.src = require('@/assets/mp3/' + this.singer + '-' + this.name + '_(Vocals)' + '.wav')
+            this.$refs.audio.src = this.src;
+            this.play = true;
+            this.box.play();
+          }
+
+        }
+      }
     },
     onLoadedmetadata(res) {
       // console.log('loadedmetadata')
@@ -919,28 +870,19 @@ export default {
       this.audio.maxTime = parseInt(res.target.duration)
     },
     changeCurrentTime(index) {
-      const newTime = (index / 100) * this.audio.maxTime;
-      this.$refs.audio.currentTime = newTime;
+      this.$refs.audio.currentTime = parseInt(index / 100 * this.audio.maxTime)
     },
     onTimeupdate(res) {
-      if (!this.isDragging) {
-        this.audio.currentTime = res.target.currentTime;
-        this.sliderTime = parseInt(this.audio.currentTime / this.audio.maxTime * 100);
-      }
+      // console.log('timeupdate')
+      // console.log(res)
+      this.audio.currentTime = res.target.currentTime
+      this.sliderTime = parseInt(this.audio.currentTime / this.audio.maxTime * 100)
     },
 
+// 进度条格式化toolTip
     formatProcessToolTip(index = 0) {
-      // 计算当前进度条对应的精确时间（秒），保持小数点后三位
-      const timeInSeconds = (this.audio.maxTime / 100 * index).toFixed(3);
-
-      // 返回格式化的时间字符串
-      return `进度条: ${timeInSeconds} 秒`;
-    },
-
-    hengtiaoshijian(range) {
-      const startTime = range.startTime.toFixed(3);
-      const endTime = range.endTime.toFixed(3);
-      return `时间范围: ${startTime} - ${endTime} 秒`;
+      index = parseInt(this.audio.maxTime / 100 * index)
+      return '进度条: ' + realFormatSecond(index)
     },
     changeVolumns() {
       // 静音切换
@@ -950,20 +892,22 @@ export default {
         this.sliderValVolumn = this.copySliderValVolumn;
       }
     },
-
     // 下一首
     musicNext1() {
-      getAClipSongRandom({'user_id': sessionStorage.getItem('user_id')}).then(response => {
-        if (response.data === "本次标注结束") {
-          this.sb = true;
-          this.box.pause();
+      getASongRandom({'user_id': sessionStorage.getItem('user_id')}).then(response => {
+        if (response.data === "没有需要标注的歌曲") {
+          this.sb = true
         } else {
-          // 设置歌曲信息
-          this.id = response.data.music_id;
-          this.name = response.data.music_name;
-          this.singer = response.data.singer;
-          this.genre = response.data.genre;
-          this.src = require('@/assets/mp3/' + this.singer + '-' + this.name + '_(Vocals)' + '.wav');
+          console.log(this.index)
+          console.log(this.index)
+          console.log(this.index)
+          this.id = response.data.music_id
+          this.name = response.data.music_name
+          this.singer = response.data.singer
+          this.genre = response.data.genre
+          // console.log("1111111111111")
+          this.src = require('@/assets/mp3/' + this.singer + '-' + this.name + '_(Vocals)' + '.wav')
+          // this.src = require(" "+response.data.src)
           this.$refs.audio.src = this.src;
           this.play = true;
           this.box.play();
@@ -973,245 +917,98 @@ export default {
             'singer': this.singer,
             'src': this.src,
             'genre': this.genre
-          });
+          })
           this.index++;
-
-          // 重置播放速度
-          this.playbackSpeed = 1;
-          this.changePlaybackSpeed();
-
-          // 加载已标注的技巧片段
-          this.getTechniqueMarkersForSong(this.id); // 新添加的代码行
         }
-      });
+      })
 
-      this.Visible = false;
-      this.ismark[this.index] = 0;
+      this.Visible = false
+      this.ismark[this.index] = 0
     },
 
-    async musicNext() {
-      // 重置技巧标记
-      this.resetTechniqueState();
-
-      // 检查是否需要加载新歌
-      if (this.index === this.playedMusic.length) {
-        try {
-          // 等待异步操作完成
-          let response = await getAClipSongRandom({'user_id': sessionStorage.getItem('user_id')});
-          if (response.data === "本次标注结束") {
-            this.sb = true;
-          } else {
-            this.loadSongData(response.data);
-            this.index++;
-          }
-        } catch (error) {
-          console.error('Error fetching new song:', error);
-        }
+    musicNext() {
+      this.ismark[0] = 1
+      console.log(this.index)
+      console.log(this.index)
+      console.log(this.index)
+      if (this.ismark[this.index] !== 1) {
+        this.$message({
+          type: 'false',
+          message: '未提交整体分!'
+        });
       } else {
-        // 加载已有歌曲
-        this.loadSongFromPlayedMusic(this.index);
-        this.index++;
+        if (this.index === this.playedMusic.length) {
+          // console.log("新歌")
+          console.log(2323)
+          console.log(this.index)
+          console.log(this.playedMusic.length)
+          console.log(this.index)
+          console.log(this.playedMusic.length)
+          getASongRandom({'user_id': sessionStorage.getItem('user_id')}).then(response => {
+            if (response.data === "没有需要标注的歌曲") {
+              this.sb = true
+            } else {
+              this.id = response.data.music_id
+              this.name = response.data.music_name
+              this.singer = response.data.singer
+              this.genre = response.data.genre
+              // console.log("1111111111111")
+              this.src = require('@/assets/mp3/' + this.singer + '-' + this.name + '_(Vocals)' + '.wav')
+              // this.src = require(" "+response.data.src)
+              this.$refs.audio.src = this.src;
+              this.play = true;
+              this.box.play();
+              this.playedMusic.push({
+                'music_id': this.id,
+                'music_name': this.name,
+                'singer': this.singer,
+                'src': this.src,
+                'genre': this.genre
+              })
+              this.index++;
+            }
+          })
+        } else {
+          // console.log("旧歌")
+          this.index++
+          var music = this.playedMusic[this.index];
+          // console.log(music)
+          this.id = music.music_id;
+          this.name = music.music_name;
+          this.singer = music.singer;
+          this.genre = music.genre;
+          this.src = require('@/assets/mp3/' + this.singer + '-' + this.name + '_(Vocals)' + '.wav')
+          this.$refs.audio.src = this.src;
+          this.play = true;
+          this.box.play();
+        }
       }
-
-      // 更新播放速度
-      this.playbackSpeed = 1;
-      this.changePlaybackSpeed();
     },
-
-
-    loadSongData(songData) {
-      this.id = songData.music_id;
-      this.name = songData.music_name;
-      this.singer = songData.singer;
-      this.genre = songData.genre;
-      this.src = require('@/assets/mp3/' + this.singer + '-' + this.name + '_(Vocals)' + '.wav');
-      this.$refs.audio.src = this.src;
-      this.play = true;
-      this.box.play();
-      this.playedMusic.push(songData);
-
-      // 获取新歌曲的技巧标记
-      this.getTechniqueMarkersForSong(this.id);
-    },
-
-    loadSongFromPlayedMusic(index) {
-      let music = this.playedMusic[index];
-      this.id = music.music_id;
-      this.name = music.music_name;
-      this.singer = music.singer;
-      this.genre = music.genre;
-      this.src = require('@/assets/mp3/' + this.singer + '-' + this.name + '_(Vocals)' + '.wav');
-      this.$refs.audio.src = this.src;
-      this.play = true;
-      this.box.play();
-
-      // 异步获取旧歌曲的技巧标记
-      this.getTechniqueMarkersForSong(this.id).then(() => {
-        // 这里可以添加一些在技巧标记加载完成后的逻辑
-      }).catch(error => {
-        console.error('Error loading technique markers for previous song:', error);
-      });
-    },
-
-    resetTechniqueState() {
-      this.techniqueMarkers = [];
-      this.currentTechnique = null;
-      this.showRedLines = false;
-    },
-
     //上一首
     musicPre() {
-      // 检查是否有上一首歌
+      // console.log('上一首')
       if (this.index === 0) {
-        alert('没有上一首了');
+        alert('没有上一首了')
       } else {
         this.index--;
-        this.loadSongFromPlayedMusic(this.index);
+        console.log(this.index)
+        console.log(this.index)
+        console.log(this.index)
+        var music = this.playedMusic[this.index];
+        console.log(music)
+        this.id = music.music_id;
+        this.name = music.music_name;
+        this.singer = music.singer;
+        this.src = require('@/assets/mp3/' + this.singer + '-' + this.name + '_(Vocals)' + '.wav')
+        this.$refs.audio.src = this.src;
+        this.play = true;
+        this.box.play();
       }
-    },
 
-    async getTechniqueMarkersForSong(musicId) {
-      try {
-        let response = await getUserClips({music_id: musicId, user_id: sessionStorage.getItem('user_id')});
-        this.techniqueMarkers = response.data.map(clip => ({
-          type: clip.type,
-          clip_id: clip.clip_id,
-          start_time: clip.start_time,
-          end_time: clip.end_time,
-          startPct: (clip.start_time / this.audio.maxTime) * 100,
-          endPct: (clip.end_time / this.audio.maxTime) * 100
-        }));
-        this.showRedLines = false;
-        this.currentTechnique = null;
-      } catch (error) {
-        console.error('Error fetching technique markers:', error);
-      }
     },
     sbClose() {
       this.sb = false
     },
-    jumpToTechnique(startTime, endTime, clipId) {
-      console.log('Clip ID:', clipId);
-      // 设置音频播放器的当前时间为技巧的起始时间
-
-      // 开始播放
-      this.box.play();
-      this.box.currentTime = startTime;
-      // 在技巧的结束时间暂停播放
-      const checkEndTime = () => {
-        if (this.box.currentTime >= endTime) {
-          this.box.pause();
-          // 以下代码用于处理暂停后的操作，例如弹出对话框等
-          // this.showAdjustDialog(clipId);
-        } else {
-          requestAnimationFrame(checkEndTime); // 继续检查
-        }
-      };
-
-      checkEndTime();
-      console.log('Playing technique from', startTime, 'to', endTime);
-
-      // 记录当前技巧的 clipId，用于后续的“修改标注”操作
-      console.log(clipId)
-      this.currentTechnique = {
-        id: clipId,
-        startTime: startTime,
-        endTime: endTime
-      };
-      this.currentClipId = clipId;
-    },
-
-    startDragging(lineType, event) {
-      // 防止默认事件和事件冒泡
-      event.preventDefault();
-
-      // 设置当前拖动的线类型和初始鼠标位置
-      this.draggingLine = lineType;
-      this.dragStartX = event.clientX;
-
-      // 添加鼠标移动和鼠标放开的事件监听器
-      document.addEventListener('mousemove', this.dragging);
-      document.addEventListener('mouseup', this.stopDragging);
-    },
-    dragging(event) {
-      if (!this.draggingLine) return;
-
-      // 计算鼠标移动的距离
-      const dx = event.clientX - this.dragStartX;
-      // 更新鼠标开始位置
-      this.dragStartX = event.clientX;
-
-      // 根据拖动的线更新技巧时间
-      if (this.draggingLine === 'start') {
-        // 计算新的开始时间
-        let newStartTime = this.updateTimeByDrag(this.currentTechnique.startTime, dx);
-        // 确保开始时间不超过结束时间
-        newStartTime = Math.min(newStartTime, this.currentTechnique.endTime);
-        this.currentTechnique.startTime = newStartTime;
-        // 更新红线的位置
-        this.startLinePosition = this.calculateLinePosition(newStartTime);
-      } else if (this.draggingLine === 'end') {
-        // 计算新的结束时间
-        let newEndTime = this.updateTimeByDrag(this.currentTechnique.endTime, dx);
-        // 确保结束时间不小于开始时间
-        newEndTime = Math.max(newEndTime, this.currentTechnique.startTime);
-        this.currentTechnique.endTime = newEndTime;
-        // 更新红线的位置
-        this.endLinePosition = this.calculateLinePosition(newEndTime);
-      }
-    },
-
-
-    stopDragging() {
-      // 停止拖动，移除事件监听器
-      this.draggingLine = null;
-      document.removeEventListener('mousemove', this.dragging);
-      document.removeEventListener('mouseup', this.stopDragging);
-      this.updateTechniqueDisplay(this.currentTechnique.id, this.currentTechnique.startTime, this.currentTechnique.endTime);
-    },
-    updateTimeByDrag(time, dx) {
-      // 确保 progressBar 已经被渲染且可访问
-      if (!this.$refs.progressBar) {
-        console.error("Progress bar not found");
-        return time; // 或者返回一个合理的默认值
-      }
-
-      const progressBarWidth = this.$refs.progressBar.offsetWidth;
-
-      // 根据拖动距离和进度条的宽度计算新的时间
-      let newTime = time + (dx / progressBarWidth) * this.audio.maxTime;
-
-      // 保证新的时间值在有效范围内
-      newTime = Math.max(0, Math.min(newTime, this.audio.maxTime));
-
-      return newTime;
-    },
-
-
-    getclip() {
-      this.clipData.music_id = this.id;
-      this.clipData.user_id = sessionStorage.getItem('user_id');
-      getUserClips(this.clipData).then(response => {
-        this.scoreclip = response.data;
-        console.log(this.scoreclip);
-        this.techniqueMarkers = this.scoreclip.map(clip => ({
-          type: clip.type,
-          clip_id: clip.clip_id,
-          start_time: clip.start_time,
-          end_time: clip.end_time,
-        }));
-        console.log("Updated techniqueMarkers:", this.techniqueMarkers);
-      });
-    },
-    handleSpacebar(event) {
-      console.log('Key pressed:', event.code);
-      if (event.code === 'Space') {
-        event.preventDefault(); // Prevent the default action to avoid scrolling
-        console.log('Spacebar pressed, toggling play/pause');
-        this.musicPlay(); // Toggle play/pause
-      }
-    },
-
     musicPlay() {
       this.play = !this.play;
       console.log(this.play)
@@ -1220,7 +1017,26 @@ export default {
       } else {
         this.box.pause();
       }
-      console.log('Play status:', this.play); // Debugging log
+    },
+    tableRowClassName({row, rowIndex}) {
+      if (rowIndex === 0) {
+        return 'warning-row';
+      } else if (rowIndex === 1) {
+        return 'warning-row';
+      } else if (rowIndex === 2) {
+        return 'warning-row';
+      } else if (rowIndex === 3) {
+        return 'success-row';
+      } else if (rowIndex === 4) {
+        return 'success-row';
+      } else if (rowIndex === 5) {
+        return 'success-row';
+      } else if (rowIndex === 6) {
+        return 'three-row';
+      } else if (rowIndex === 7) {
+        return 'three-row';
+      }
+      return '';
     },
     formatTooltip(val) {
       // 格式化毫秒数，由于组件提示为纯数字，所以这里需要将数字转化为我们所需要的的格式，string类型的。'03:45',
@@ -1236,38 +1052,6 @@ export default {
       // 备份音量
       this.copySliderValVolumn = this.sliderValVolumn;
     },
-    playAndMarkTechnique(range) {
-      // 当当前技巧未被设置或者当前横条技巧与正在播放的技巧不同时，更新当前技巧
-      if (!this.currentTechnique || this.currentTechnique.clipId !== range.clipId) {
-        this.showRedLines = true;
-        this.startLinePosition = range.startPct + '%';
-        this.endLinePosition = range.endPct + '%';
-        this.currentTechnique = Object.assign({}, range);
-        this.currentClipId = range.clipId;
-      }
-
-      // 播放当前技巧的音频段落
-      this.playTechnique(this.currentTechnique.startTime, this.currentTechnique.endTime);
-    },
-
-
-    calculateLinePosition(time) {
-      // 将时间转换为百分比位置
-      const positionPct = (time / this.audio.maxTime) * 100;
-      return positionPct + '%';
-    },
-    updateTechniqueDisplay(clipId, newStartTime, newEndTime) {
-      // 查找并更新对应的技巧标记
-      const index = this.techniqueMarkers.findIndex(marker => marker.clip_id === clipId);
-      if (index !== -1) {
-        this.techniqueMarkers[index].start_time = newStartTime;
-        this.techniqueMarkers[index].end_time = newEndTime;
-        // 重新计算百分比位置
-        this.techniqueMarkers[index].startPct = (newStartTime / this.audio.maxTime) * 100;
-        this.techniqueMarkers[index].endPct = (newEndTime / this.audio.maxTime) * 100;
-      }
-    },
-
     updateTime() {
       const total = this.formatTime(this.box.duration);
       const current = this.formatTime(this.box.currentTime);
@@ -1302,28 +1086,6 @@ export default {
 
 }
 </script>
-
-<style scoped>
-/* Example CSS for responsive buttons */
-.button-responsive {
-  width: 10vw; /* width as a percentage of the viewport width */
-  height: 5vw; /* height as a percentage of the viewport width */
-  min-width: 50px; /* minimum width to ensure usability */
-  min-height: 25px; /* minimum height to ensure usability */
-  font-size: 1.5vw; /* font size scales with viewport width */
-  padding: 1vw; /* padding scales with viewport width */
-  margin: 1vw; /* margin scales with viewport width */
-}
-
-/* Adjustments for smaller screens to prevent buttons from becoming too small */
-@media (max-width: 600px) {
-  .button-responsive {
-    width: 20vw;
-    height: 10vw;
-    font-size: 3vw;
-  }
-}
-</style>
 <style>
 >>> .el-dialog {
   display: flex;
@@ -1348,116 +1110,6 @@ export default {
   min-width: 20px !important;
   padding: 12px 5px !important;
 }
-
-.technique-bars {
-  position: relative;
-  height: 5px;
-  margin-top: 5px;
-}
-
-.technique-button {
-  border: 2px solid #ADD8E6; /* 默认浅蓝色边框 */
-  margin: 5px; /* 保持按钮间距 */
-  border-radius: 5px; /* 轻微的圆角 */
-  color: black; /* 文字颜色 */
-  font-weight: bold; /* 字体加粗 */
-}
-
-.technique-button:disabled {
-  opacity: 0.5; /* 使颜色变暗 */
-  cursor: not-allowed; /* 更改鼠标指针样式 */
-}
-
-/* 特定技巧类型的按钮颜色 */
-.technique-button.颤音 {
-  background-color: RoyalBlue;
-  color: white;
-}
-
-.technique-button.滑音 {
-  background-color: DarkCyan;
-  color: white;
-}
-
-.technique-button.气泡音 {
-  background-color: Violet;
-  color: white;
-}
-
-/* 文字颜色改为黑色以提高可读性 */
-.technique-button.假声 {
-  background-color: DarkGoldenrod;
-  color: white;
-}
-
-.technique-button.转音 {
-  background-color: Indigo;
-  color: white;
-}
-
-.technique-button.颤音:disabled {
-  background-color: #6699CC;
-}
-
-/* 淡化颜色 */
-.technique-button.滑音:disabled {
-  background-color: #669999;
-}
-
-.technique-button.气泡音:disabled {
-  background-color: #CC99CC;
-}
-
-.technique-button.假声:disabled {
-  background-color: #CC9966;
-}
-
-.technique-button.转音:disabled {
-  background-color: #666699;
-}
-
-.technique-bar {
-  position: absolute;
-  height: 100%;
-  bottom: 0;
-}
-
-.overlay-bar {
-  position: absolute;
-  height: 100%;
-  bottom: 0;
-}
-
-.technique-bar-container {
-  position: relative;
-  height: 10px;
-  margin-top: 10px;
-  margin-bottom: 15px;
-}
-
-.base-bar {
-  background-color: lightgrey;
-  width: 100%;
-  height: 100%;
-}
-
-.technique-bar.颤音 {
-  background-color: RoyalBlue;
-}
-
-.technique-bar.滑音 {
-  background-color: DarkCyan;
-}
-
-.technique-bar.气泡音 {
-  background-color: Violet;
-}
-
-.technique-bar.假声 {
-  background-color: DarkGoldenrod;
-}
-
-// ... styles for other techniques
 
 .login-container {
   width: 350px;
@@ -1495,54 +1147,17 @@ export default {
 
 }
 
-.time-text {
-  position: absolute;
-  bottom: 100%; /* 将文本放置在红线的上方 */
-  left: 50%;
-  transform: translateX(-50%);
-  background-color: #fff;
-  padding: 2px 5px;
-  border: 1px solid #ccc;
-  border-radius: 3px;
-  font-size: 12px;
-  white-space: nowrap;
-}
-
-.red-line {
-  position: absolute;
-  bottom: 0;
-  width: 2px;
-  height: 100%;
-  background-color: red;
-  cursor: pointer;
-}
-
-.progress-bar {
-  position: relative;
-  /* 其他样式 */
-}
-
 //.el-dialog__body{
 //  flex:1 !important;
 //  overflow: auto !important;
 //  background-color: #42b983 !important;
 //}
-//.technique-button {
-//    border: 2px solid #ADD8E6; /* 浅蓝色边框 */
-//    margin: 5px; /* 保持按钮间距 */
-//    border-radius: 5px; /* 轻微的圆角 */
-//}
+
 .el-divider--horizontal {
   margin: 2vh 1vh;
   //background: 0 0;
   //border-top: 1px dashed #e8eaec;
   width: 70vh;
-}
-
-.dashed-divider {
-  border-right: 2px dashed #ccc; /* 设置虚线的颜色和样式 */
-  height: 100%; /* 设置虚线的高度，根据需要调整 */
-  margin-right: 10px; /* 设置虚线与右侧按钮的间距 */
 }
 
 .audio-player {
@@ -1564,7 +1179,7 @@ export default {
 
     .slider {
       display: inline-block;
-      width: 100%;
+      width: 460px;
       position: relative;
       top: 4px;
       margin-left: 10px;

@@ -37,6 +37,8 @@ export const getMarkedScoresByQuery = data => {return axios.post(ip+'get_marked_
 
 export const createMarkedScore = data => {return axios.post(ip+'create_marked_score/', data)}
 
+export const createDimensionScore = data => {return axios.post(ip+'create_dimension_score/', data)} ///
+
 export const createMarkedClip = data => {return axios.post(ip+'create_marked_clip/', data)}
 
 export const createMarkedDimensionScore = data => {return axios.post(ip+'create_marked_dimension_score/', data)}

@@ -352,6 +352,27 @@ def create_marked_score(request):
     Music.objects.filter(music_id=music_id).update(marked_number=marked_number)
     return HttpResponse("success")
 
+## 维度分
+@csrf_exempt
+def create_dimension_score(request):
+    body = json.loads(request.body)
+    user = User.objects.get(user_id=body['user_id'])
+    music = Music.objects.get(music_id=body['music_id'])
+    dimension = body['dimension']
+    if (DimensionScore.objects.filter(user_id=user, music_id=music, dimension=dimension).count() != 0):
+        marked_score = DimensionScore.objects.get(user_id=user, music_id=music)
+        marked_score.dimension_score = body['dimension_score']
+        marked_score.mark_time = timezone.now()
+        marked_score.save()
+    else:
+        marked_score = DimensionScore(user_id=user, music_id=music, dimension=body['dimension'], dimension_score=body['dimension_score'])
+        marked_score.save()
+    music_id = body['music_id']
+    marked_number = DimensionScore.objects.filter(music_id=music_id).count()
+    Music.objects.filter(music_id=music_id).update(marked_number=marked_number)
+    return HttpResponse("success")
+##
+
 
 # 修改单条评分
 @csrf_exempt

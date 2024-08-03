@@ -9,6 +9,7 @@ urlpatterns = [
     path('get_marked_scores/', views.get_marked_scores),
     path('get_marked_clips/', views.get_marked_clips),
     path('create_marked_score/', views.create_marked_score),
+    path('create_dimension_score/', views.create_dimension_score), ##
     path('create_marked_clip/', views.create_marked_clip),
     path('get_user_scores/', views.get_user_scores),
     path('get_user_clips/', views.get_user_clips),
