@@ -17,6 +17,7 @@
     "less-loader": "^6.0.0",
     "mockjs": "^1.1.0",
     "node-sass": "^9.0.0",
+    "remixicon": "^4.3.0",
     "url-loader": "^4.1.1",
     "video.js": "^8.0.4",
     "vue": "^2.6.14",

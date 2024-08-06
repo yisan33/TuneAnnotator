@@ -211,7 +211,7 @@
                 <!--              </el-form-item>-->
               </el-form>
               
-              <el-button size="mini">流派是否正确</el-button>
+              <el-button size="mini">情感标签是否正确</el-button>
               &nbsp&nbsp&nbsp
               &nbsp&nbsp&nbsp
               <el-radio-group v-model="radio" @input="dayin11" style="padding-left: 25px">
@@ -399,17 +399,17 @@ export default {
       index: 0, // 当前播放的音乐索引
       playedMusic: [],
       options: [{
-        value: '抒情流行',
-        label: '抒情流行'
+        value: '情感1',
+        label: '情感1'
       }, {
-        value: 'R&B',
-        label: 'R&B'
+        value: '情感2',
+        label: '情感2'
       }, {
-        value: '摇滚',
-        label: '摇滚'
+        value: '情感3',
+        label: '情感3'
       }, {
-        value: '民谣',
-        label: '民谣'
+        value: '情感4',
+        label: '情感4'
       }],
       value: '',
       label: '',
@@ -818,6 +818,10 @@ export default {
           ///
           
           this.form.score = ''
+          this.form.score2 = ''
+          this.form.score3 = ''
+          this.form.score4 = ''
+          this.form.score5 = ''
           this.ismark[this.index] = 1
           if (this.index === this.playedMusic.length) {
             // console.log("新歌")
@@ -895,6 +899,7 @@ export default {
     // 下一首
     musicNext1() {
       getASongRandom({'user_id': sessionStorage.getItem('user_id')}).then(response => {
+        // console.log(user_id)
         if (response.data === "没有需要标注的歌曲") {
           this.sb = true
         } else {

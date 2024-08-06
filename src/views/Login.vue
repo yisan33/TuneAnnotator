@@ -1,58 +1,46 @@
 <template>
-
-  <el-form ref="form" label-width="70px" :inline="true" class="login-container" :model="form" :rules="rules">
-    <h3 class="login_title">系统登录</h3>
-    <el-form-item label="用户名" prop="user_name">
-      <el-input v-model="form.user_name" placeholder="请输入账号"></el-input>
-    </el-form-item>
-    <el-form-item label="密码" prop="user_password">
-      <el-input type="password" v-model="form.user_password" placeholder="请输入密码"></el-input>
-    </el-form-item>
-    <el-form-item>
-      <el-button @click="submit" style="margin-left: 105px;margin-top: 10px;" type="primary">登录</el-button>
-      <el-button @click="toregist" style="margin-left: 105px;margin-top: 10px;">注册</el-button>
-    </el-form-item>
-  </el-form>
-
+  <div class="login-background">
+    <div class="background-image"></div>
+    <el-form ref="form" label-width="70px" class="login-container" :model="form">
+      <h3 class="login_title">欢迎回来</h3>
+      <custom-input v-model="form.user_name" placeholder="请输入账号" icon="ri-user-3-line"></custom-input>
+      <custom-input v-model="form.user_password" placeholder="请输入密码" type="password" icon="ri-lock-2-line"></custom-input>
+      <el-button @click="submit" class="login-button" type="primary">登录</el-button><br>
+      <div class="register-prompt">
+        没有账号？<router-link to="/register" class="register-link">注册</router-link>
+      </div>
+    </el-form>
+  </div>
 </template>
 
 <script>
+import CustomInput from './CustomInput.vue'
 import Mock from 'mockjs'
 import Cookie from 'js-cookie'
 // import { getMenu } from '../api'
 import {getMarkedScoresByQuery, login} from "@/api/api";
 import axios from "axios";
 export default {
+  components: {
+    CustomInput
+  },
   data() {
     return {
       form: {
         user_name: '',
         user_password: ''
-      },
-      rules: {
-        user_name: [
-          {required: true, trigger: 'blur', message: '请输入用户名'}
-        ],
-        user_password: [
-          {required: true, trigger: 'blur', message: '请输入密码'}
-        ]
       }
     }
   },
 
   methods: {
-        // 登录
-    
     submit() {
           login({'user_name': this.form.user_name, 'user_password': this.form.user_password}).then(response => {
-            // console.log(response.data)
             if (response.data.loginstatus === 1) {
-              // console.log(response.data.user_name)
               // token信息存入cookie用于不同页面间的通信
               Cookie.set('token', response.data.token)
               sessionStorage.setItem('user_name', response.data.user_name)
               sessionStorage.setItem('user_id', response.data.user_id)
-              // 跳转到首页
               this.$router.push({path:'/home',name:'home',params:{user_name:response.data.user_name}})
             } else {
               this.$message.error(response.data.message);
@@ -61,49 +49,78 @@ export default {
             alert(error.response.data)
           })
     },
-    
-    /*
-    submit() {
-        let uname = this.form.user_name
-        let upass = this.form.user_password
-        if(uname === 'wcy'){
-          if(upass === 'wcy'){
-                         Cookie.set('token', uname)
-               sessionStorage.setItem('user_name', uname)
-               // 跳转到首页
-               this.$router.push({path:'/home',name:'home'})
-          }
-        }
-    },
-    */
-
-    toregist() {
-      const token = Mock.Random.guid()
-      Cookie.set('token', token)
-      this.$router.push('/register')
-      Cookie.remove('token')
+    // 监听回车键执行事件
+    keyDown (e) {
+      // 回车则执行登录方法 enter键的ASCII是13
+      if (e.keyCode === 13) {
+        this.submit() // 需要执行的方法方法
+      }
     }
+  },
+  // 绑定监听事件
+  mounted () {
+    window.addEventListener('keydown', this.keyDown)
+  },
+  // 销毁事件
+  destroyed () {
+    window.removeEventListener('keydown', this.keyDown, false)
   }
+
 }
 </script>
 
 <style lang="less" scoped>
+.login-background {
+  background: url('@/assets/images/login1.jpg') no-repeat center center fixed;
+  background-size: cover;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden; /* 确保子元素不会溢出父容器 */
+}
+.background-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('@/assets/images/login1.jpg');
+  background-size: cover;
+  background-position: center;
+  filter: blur(10px); /* 设置模糊效果 */
+  z-index: -1; /* 确保背景图片在其他元素下方 */
+}
 .login-container {
     width: 350px;
     border: 1px solid #eaeaea;
     margin: 180px auto;
     padding: 35px 35px 15px 35px;
-    background-color: #fff;
+    background-color: rgba(255, 255, 255, 0.7);
     border-radius: 15px;
     box-shadow: 0 0 25px #cac6c6;
     box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    backdrop-filter: blur(5px); /* 对背景进行模糊处理 */
+    
+
     .login_title {
         text-align: center;
-        margin-bottom: 40px;
+        margin-bottom: 35px;
         color: #505458;
+        font-size: 25px
     }
-    .el-input {
-        width: 198px;
-    }
+}
+.register-prompt {
+  font-size: 13px;
+  margin-top: 20px;
+  text-align: center;
+  opacity: 0.8;
+}
+.register-prompt a {
+  font-size: 13px;
+  color: #2c6fdb;
+  text-decoration: none;
 }
 </style>

@@ -83,10 +83,12 @@ DATABASES = {
     # }
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'musicweb',  # 数据库名字
+        ## 'NAME': 'musicweb',  # 数据库名字
+        'NAME': 'music_quality',
         'USER': 'root',
-        'PASSWORD': '123456',
-        'HOST': '127.0.0.1',  # 那台机器安装了MySQL
+        'PASSWORD': '12345678',
+        ## 'HOST': '127.0.0.1',  # 那台机器安装了MySQL
+        'HOST': '10.181.1.116',
         'PORT': 3306,
     }
 }

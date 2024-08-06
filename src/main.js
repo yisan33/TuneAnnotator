@@ -10,6 +10,9 @@ import Video from 'video.js'
 import 'video.js/dist/video-js.css'
 import './api/mock'
 import Cookie from "js-cookie"
+
+import 'remixicon/fonts/remixicon.css'
+
 // import '../static/font/iconfont.css'
 // import '../static/css/style.css'
 import Aplayer from 'vue-aplayer'

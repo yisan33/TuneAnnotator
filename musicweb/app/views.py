@@ -106,9 +106,10 @@ def get_a_song_random(request):
     body = json.loads(request.body)
     user_id = body['user_id']
     # 测试用户没有歌曲限制
-    if user_id == '1' or user_id == 1:
+    if user_id == '1' or user_id == 1 or user_id == '2' or user_id == 2:
         marked_music = MarkedScore.objects.filter(user_id=user_id).values('music_id')
         unmark_musics = list(Music.objects.exclude(music_id__in=marked_music).values())
+
     # 专家
     else:
         user_musics = AssignUserMusic.objects.filter(user_id=user_id)

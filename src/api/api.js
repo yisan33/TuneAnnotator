@@ -3,7 +3,8 @@ import axiosInstance from './index'
 const axios = axiosInstance
 // const ip = 'http://192.168.43.108:8081/app/'
 // const ip = 'http://127.0.0.1:8081/app/'
-const ip = 'http://127.0.0.1:8000/app/'
+// const ip = 'http://127.0.0.1:8000/app/'
+const ip = 'http://10.181.162.152:8000/app/'
 
 export const register = data => {return axios.post(ip+'create_user/', data)}
 
