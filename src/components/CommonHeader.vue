@@ -14,7 +14,7 @@
     <div class="r-content">
       <el-dropdown @command="handleClick">
         <span class="el-dropdown-link">
-          <img class="user" src="../assets/images/xitured.jpg" alt="">
+          <!-- <img class="user" src="../assets/images/xitured.jpg" alt=""> -->
         </span>
         <el-dropdown-menu slot="dropdown">
           <el-dropdown-item command="cancel" >退出登录</el-dropdown-item>
@@ -60,8 +60,9 @@ export default {
 
 <style lang="less" scoped>
 .header-container {
-  background-color: #333;
-  height: 50px;
+  /* background-color: #333; */
+  background-color: #026b9f;
+  height: 40px;
   padding: 20px;
   display: flex;
   justify-content: space-between;
@@ -87,20 +88,23 @@ export default {
 
   .logo1{
       float: left;
-      margin-top: 10px;
+      /* margin-top: 10px; */
+      margin-top: 5px;
       margin-left: 25px;
       margin-right: 20px;
       height: 60px;
   }
   .logo2{
       float: left;
-      margin-top: 10px;
+      /* margin-top: 10px; */
+      margin-top: 5px;
       margin-left: 20px;
       height: 60px;
   }
   .font{
     float:left;
-    margin-top: 15px;
+    /* margin-top: 15px; */
+    margin-top: 10px;
     width: 1px;
     height: 50px;
     background: white;

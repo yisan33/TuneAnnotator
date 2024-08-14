@@ -11,6 +11,10 @@ from decimal import Decimal
 from datetime import datetime
 from .models import *
 
+##
+from django.core.exceptions import ObjectDoesNotExist
+
+
 
 # json编码
 class MyEncoder(json.JSONEncoder):
@@ -106,37 +110,37 @@ def get_a_song_random(request):
     body = json.loads(request.body)
     user_id = body['user_id']
     # 测试用户没有歌曲限制
-    if user_id == '1' or user_id == 1 or user_id == '2' or user_id == 2:
-        marked_music = MarkedScore.objects.filter(user_id=user_id).values('music_id')
-        unmark_musics = list(Music.objects.exclude(music_id__in=marked_music).values())
+    ## if user_id == '1' or user_id == 1 or user_id == '2' or user_id == 2:
+    marked_music = MarkedScore.objects.filter(user_id=user_id).values('music_id')
+    unmark_musics = list(Music.objects.exclude(music_id__in=marked_music).values())
 
-    # 专家
-    else:
-        user_musics = AssignUserMusic.objects.filter(user_id=user_id)
-        ### 每天标注歌曲数限制 ###
-        marked_scores = MarkedScore.objects.filter(user_id=user_id)
-        # 本次标注的歌曲数
-        total_number = user_musics.count()
-        # 统计当天标的歌曲数
-        now = datetime.now()
-        today_number = 0
-        for marked_score in marked_scores:
-            date = str(marked_score.mark_time)
-            date = date.split(" ")[0].split("-")
-            if int(date[0]) == now.year and int(date[1]) == now.month and int(date[2]) == now.day:
-                today_number += 1
-        # 每天标注的歌曲数为 本批次标注的歌曲数/2
-        if total_number % 2 == 1:
-            day_limit = (total_number + 1) / 2
-        else:
-            day_limit = total_number / 2
-        # 若达上限则停止标注
-        # if today_number >= day_limit:
-        #     print("用户", user_id, "今日标注达到上限")
-        #     return HttpResponse("今日标注结束")
-        # 未标记的歌曲
-        unmark_music_ids = user_musics.filter(is_mark=0).values('music_id')
-        unmark_musics = list(Music.objects.filter(music_id__in=unmark_music_ids).values())
+    # # 专家
+    # else:
+    #     user_musics = AssignUserMusic.objects.filter(user_id=user_id)
+    #     ### 每天标注歌曲数限制 ###
+    #     marked_scores = MarkedScore.objects.filter(user_id=user_id)
+    #     # 本次标注的歌曲数
+    #     total_number = user_musics.count()
+    #     # 统计当天标的歌曲数
+    #     now = datetime.now()
+    #     today_number = 0
+    #     for marked_score in marked_scores:
+    #         date = str(marked_score.mark_time)
+    #         date = date.split(" ")[0].split("-")
+    #         if int(date[0]) == now.year and int(date[1]) == now.month and int(date[2]) == now.day:
+    #             today_number += 1
+    #     # 每天标注的歌曲数为 本批次标注的歌曲数/2
+    #     if total_number % 2 == 1:
+    #         day_limit = (total_number + 1) / 2
+    #     else:
+    #         day_limit = total_number / 2
+    #     # 若达上限则停止标注
+    #     # if today_number >= day_limit:
+    #     #     print("用户", user_id, "今日标注达到上限")
+    #     #     return HttpResponse("今日标注结束")
+    #     # 未标记的歌曲
+    #     unmark_music_ids = user_musics.filter(is_mark=0).values('music_id')
+    #     unmark_musics = list(Music.objects.filter(music_id__in=unmark_music_ids).values())
 
     end = len(unmark_musics) - 1
     if end < 0:
@@ -208,6 +212,57 @@ def clip_get_a_song_random(request):
     info['marked_number'] = song['marked_number']
     data = json.dumps(info)
     return HttpResponse(data, content_type="application/json")
+
+## 
+@csrf_exempt
+def find_song_of_vocal_version(request):
+    body = json.loads(request.body)
+    song_name = body['song_name']
+    singer_name = body['singer_name']
+    
+    try:
+        song = Music_Vocal.objects.get(music_name=song_name, singer=singer_name)
+        # print(f"Found song: {song}")
+
+        info = {}
+        info['music_id'] = str(song.music_id)
+        info['music_name'] = song.music_name
+        info['singer'] = song.singer
+        info['genre'] = song.genre
+        info['harmony_quantity'] = song.harmony_quantity
+        info['src'] = str(song.src)
+        info['marked_number'] = song.marked_number
+
+
+        data = json.dumps(info)
+        return HttpResponse(data, content_type="application/json")
+    except ObjectDoesNotExist:
+        return JsonResponse({'error': 'Song not found'}, status=404)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+@csrf_exempt
+def find_song_of_instrumental_version(request):
+    body = json.loads(request.body)
+    song_name = body['song_name']
+    singer_name = body['singer_name']
+
+    song = Music_Instrumental.objects.get(music_name=song_name, singer=singer_name)
+
+    info = {
+        'music_id': str(song.music_id),
+        'music_name': song.music_name,
+        'singer': song.singer,
+        'genre': song.genre,
+        'harmony_quantity': song.harmony_quantity,
+        'src': str(song.src),
+        'marked_number': song.marked_number
+    }
+
+    data = json.dumps(info)
+    return HttpResponse(data, content_type="application/json")
+
+## 
 
 # 修改歌曲流派
 @csrf_exempt

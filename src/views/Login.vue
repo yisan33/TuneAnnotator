@@ -5,7 +5,7 @@
       <h3 class="login_title">欢迎回来</h3>
       <custom-input v-model="form.user_name" placeholder="请输入账号" icon="ri-user-3-line"></custom-input>
       <custom-input v-model="form.user_password" placeholder="请输入密码" type="password" icon="ri-lock-2-line"></custom-input>
-      <el-button @click="submit" class="login-button" type="primary">登录</el-button><br>
+      <el-button @click="submit" class="login-button" type="primary">登录</el-button>
       <div class="register-prompt">
         没有账号？<router-link to="/register" class="register-link">注册</router-link>
       </div>
@@ -41,7 +41,7 @@ export default {
               Cookie.set('token', response.data.token)
               sessionStorage.setItem('user_name', response.data.user_name)
               sessionStorage.setItem('user_id', response.data.user_id)
-              this.$router.push({path:'/home',name:'home',params:{user_name:response.data.user_name}})
+              this.$router.push({path:'/page2', params:{user_name:response.data.user_name}})
             } else {
               this.$message.error(response.data.message);
             }
@@ -109,7 +109,7 @@ export default {
         text-align: center;
         margin-bottom: 35px;
         color: #505458;
-        font-size: 25px
+        font-size: 25px;
     }
 }
 .register-prompt {

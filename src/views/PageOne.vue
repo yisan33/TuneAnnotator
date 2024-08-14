@@ -35,11 +35,11 @@
             <span>歌曲：{{ name }}</span>&nbsp&nbsp<span>id：{{ id }}</span>&nbsp&nbsp<span>流派：{{ genre }}</span>
             <br>
             <div style="margin-top: 5px">
-              <el-button @click="musicPre" type="primary">上一首</el-button>
-              <el-button @click="musicPlay" type="primary">暂停/播放</el-button>
-              <el-button @click="musicNext" type="primary">下一首</el-button>
+              <el-button @click="musicPre"  class="highlight-button btn-9" style="margin-top: 30px;">上一首</el-button>
+              <el-button @click="musicPlay"  class="highlight-button btn-9b" style="margin-top: 30px; margin-left: 30px;">暂停/播放</el-button>
+              <el-button @click="musicNext" class="highlight-button btn-9" style="margin-top: 30px; margin-left: 30px;">下一首</el-button>
             </div>
-
+  
             <div style="margin-top: 5px">
               <!--      <span>{{src}}</span>-->
               <audio ref="audio"
@@ -60,16 +60,11 @@
             <span class="duration">/{{ audio.maxTime | formatSecond }}</span>
             <br>
             <div style="margin-top: 1vh">
-              <!--              <el-button @click="start" type="primary">开始</el-button>-->
-              <!--              <el-button @click="end" style="margin-left: 10px;" type="primary">结束-->
-              <!--              </el-button>-->
-              <!--              <el-button @click="inputpd" type="primary">提交</el-button>&nbsp;&nbsp;起始时间：{{-->
-              <!--                this.bb + ':' + this.cc-->
-              <!--              }}&nbsp;结束时间：{{ this.dd + ':' + this.ee }}-->
 
 
             </div>
           </el-card>
+          
           <el-card style="margin-top: 20px; height: 452px">
 
             <el-table
@@ -92,6 +87,7 @@
 
 
           </el-card>
+          
         </el-col>
       </div>
       <el-col :span="14">
@@ -101,33 +97,46 @@
             <el-form ref="form" label-width="70px" :inline="true" :model="form" :rules="rules"
                      style="margin: 5px 10px">
 
-              <h3>整体质量</h3>
+              <!-- /// <h3>整体质量</h3>-->
               <el-form ref="form" label-width="70px" style="margin-top: 20px;" :inline="true"
                        :model="form"
                        :rules="rules">
-                <el-tooltip class="item" effect="dark" content="Right Bottom 提示文字" placement="left-start">
-                  <div slot="content">
-                    90-100分：表现完美，音色悦耳具有辨识度，技巧发挥成熟自然，<br/>情感张力大，能打动人心；<br/><br/>80-89分：
-                    表现良好，音色悦耳，技巧发挥成熟自然，<br/>有一定的情感表现；
-                    <br/><br/>70-79分： 个别音音准、节奏把握不准确，气息稳定，共鸣较好，<br/>但部分技巧使用发挥不够成熟，情感表现较弱；<br/><br/>60-69分：
-                    个别乐句音准、节奏把握不准确，音域也基本可以达到歌曲要求<br/>但整体的气息不够稳定，声乐技巧上的使用不够成熟，情感表现弱；
-                    <br/><br/>59分以下： 有1/3的音准节奏问题，音域达不到歌曲要求；<br/>其他共鸣技巧等发挥也都比较糟糕，大白嗓严重；
+                
+                
+                <div class="form-container">
+                  <el-tooltip placement="left" effect="customized">
+                    <div slot="content">
+                      90-100分：none，<br/>none；<br/><br/>80-89分：
+                      none；
+                      <br/><br/>70-79分： none，<br/>none；<br/><br/>60-69分：
+                      none<br/>none；
+                      <br/><br/>59分以下： none；<br/>none；
+                    </div>
+                    <el-button class="highlight-button button-5">整体质量</el-button>
+
+                  </el-tooltip>
+                  <div class="form-control">
+                    <input 
+                      type="text" 
+                      v-model="form.score" 
+                      :aria-valid="isScoreValid1" 
+                      placeholder="请输入分数" 
+                      @input="validateScore1" 
+                      required
+                    />
                   </div>
-                  <el-button>评分</el-button>
-                </el-tooltip>
-                <el-form-item prop="score" style="margin-left: 90px">
-                  <el-input v-model="form.score" placeholder="请输入分数"></el-input>
-                </el-form-item>
+                  
+                </div>
                 <!--              <el-form-item>-->
                 <!--                <el-button @click="submit" type="primary">提交</el-button>-->
                 <!--              </el-form-item>-->
               </el-form>
               
-              <h3>旋律</h3>
-              <el-form ref="form" label-width="70px" style="margin-top: 20px;" :inline="true"
+              <!-- /// <h3>旋律</h3>-->
+              <el-form ref="form" label-width="70px" style="margin-top: 50px;" :inline="true"
                        :model="form"
                        :rules="rules">
-                <el-tooltip class="item" effect="dark" content="Right Bottom 提示文字" placement="left-start">
+                <el-tooltip placement="left" effect="customized">
                   <div slot="content">
                     90-100分：None，<br/>None；<br/><br/>80-89分：
                     None，<br/>None；
@@ -135,21 +144,41 @@
                     个别乐句音准、节奏把握不准确，音域也基本可以达到歌曲要求<br/>但整体的气息不够稳定，声乐技巧上的使用不够成熟，情感表现弱；
                     <br/><br/>59分以下： 有1/3的音准节奏问题，音域达不到歌曲要求；<br/>其他共鸣技巧等发挥也都比较糟糕，大白嗓严重；
                   </div>
-                  <el-button>评分</el-button>
                 </el-tooltip>
-                <el-form-item prop="score2" style="margin-left: 90px">
-                  <el-input v-model="form.score2" placeholder="请输入分数"></el-input>
-                </el-form-item>
+                <div class="form-container">
+                  <el-tooltip placement="left" effect="customized">
+                    <div slot="content">
+                      90-100分：none，<br/>none；<br/><br/>80-89分：
+                      none；
+                      <br/><br/>70-79分： none，<br/>none；<br/><br/>60-69分：
+                      none<br/>none；
+                      <br/><br/>59分以下： none；<br/>none；
+                    </div>
+                  <el-button class="highlight-button button-5">旋律</el-button>
+                  </el-tooltip>
+                  
+                  <div class="form-control">
+                    <input 
+                      type="text" 
+                      v-model="form.score2" 
+                      :aria-valid="isScoreValid2" 
+                      placeholder="请输入分数" 
+                      @input="validateScore2" 
+                      required
+                    />
+                  </div>
+                  
+                </div>
                 <!--              <el-form-item>-->
                 <!--                <el-button @click="submit" type="primary">提交</el-button>-->
                 <!--              </el-form-item>-->
               </el-form>
               
-              <h3>演唱</h3>
-              <el-form ref="form" label-width="70px" style="margin-top: 20px;" :inline="true"
+              <!-- /// <h3>演唱</h3>-->
+              <el-form ref="form" label-width="70px" style="margin-top: 50px;" :inline="true"
                        :model="form"
                        :rules="rules">
-                <el-tooltip class="item" effect="dark" content="Right Bottom 提示文字" placement="left-start">
+                <el-tooltip placement="left" effect="customized">
                   <div slot="content">
                     90-100分：表现完美，音色悦耳具有辨识度，技巧发挥成熟自然，<br/>情感张力大，能打动人心；<br/><br/>80-89分：
                     表现良好，音色悦耳，技巧发挥成熟自然，<br/>有一定的情感表现；
@@ -157,21 +186,41 @@
                     个别乐句音准、节奏把握不准确，音域也基本可以达到歌曲要求<br/>但整体的气息不够稳定，声乐技巧上的使用不够成熟，情感表现弱；
                     <br/><br/>59分以下： 有1/3的音准节奏问题，音域达不到歌曲要求；<br/>其他共鸣技巧等发挥也都比较糟糕，大白嗓严重；
                   </div>
-                  <el-button>评分</el-button>
+                  
                 </el-tooltip>
-                <el-form-item prop="score3" style="margin-left: 90px">
-                  <el-input v-model="form.score3" placeholder="请输入分数"></el-input>
-                </el-form-item>
-                <!--              <el-form-item>-->
-                <!--                <el-button @click="submit" type="primary">提交</el-button>-->
-                <!--              </el-form-item>-->
+                <div class="form-container">
+                  
+                  <el-tooltip placement="left" effect="customized">
+                    <div slot="content">
+                      90-100分：none，<br/>none；<br/><br/>80-89分：
+                      none；
+                      <br/><br/>70-79分： none，<br/>none；<br/><br/>60-69分：
+                      none<br/>none；
+                      <br/><br/>59分以下： none；<br/>none；
+                    </div>
+                  <el-button class="highlight-button button-5">演唱</el-button>
+                  </el-tooltip>
+                  <div class="form-control">
+                    <input 
+                      type="text" 
+                      v-model="form.score3" 
+                      :aria-valid="isScoreValid3" 
+                      placeholder="请输入分数" 
+                      @input="validateScore3" 
+                      required
+                    />
+                  </div>
+                  
+                </div>
+
               </el-form>
+                
               
-              <h3>编曲</h3>
-              <el-form ref="form" label-width="70px" style="margin-top: 20px;" :inline="true"
+              <!-- /// <h3>编曲</h3> -->
+              <el-form ref="form" label-width="70px" style="margin-top: 50px;" :inline="true"
                        :model="form"
                        :rules="rules">
-                <el-tooltip class="item" effect="dark" content="Right Bottom 提示文字" placement="left-start">
+                <el-tooltip placement="left" effect="customized">
                   <div slot="content">
                     90-100分：表现完美，音色悦耳具有辨识度，技巧发挥成熟自然，<br/>情感张力大，能打动人心；<br/><br/>80-89分：
                     表现良好，音色悦耳，技巧发挥成熟自然，<br/>有一定的情感表现；
@@ -179,21 +228,37 @@
                     个别乐句音准、节奏把握不准确，音域也基本可以达到歌曲要求<br/>但整体的气息不够稳定，声乐技巧上的使用不够成熟，情感表现弱；
                     <br/><br/>59分以下： 有1/3的音准节奏问题，音域达不到歌曲要求；<br/>其他共鸣技巧等发挥也都比较糟糕，大白嗓严重；
                   </div>
-                  <el-button>评分</el-button>
                 </el-tooltip>
-                <el-form-item prop="score4" style="margin-left: 90px">
-                  <el-input v-model="form.score4" placeholder="请输入分数"></el-input>
-                </el-form-item>
-                <!--              <el-form-item>-->
-                <!--                <el-button @click="submit" type="primary">提交</el-button>-->
-                <!--              </el-form-item>-->
+                <div class="form-container">
+                  <el-tooltip placement="left" effect="customized">
+                    <div slot="content">
+                      90-100分：none，<br/>none；<br/><br/>80-89分：
+                      none；
+                      <br/><br/>70-79分： none，<br/>none；<br/><br/>60-69分：
+                      none<br/>none；
+                      <br/><br/>59分以下： none；<br/>none；
+                    </div>
+                  <el-button class="highlight-button button-5">编曲</el-button>
+                  </el-tooltip>
+                  <div class="form-control">
+                    <input 
+                      type="text" 
+                      v-model="form.score4" 
+                      :aria-valid="isScoreValid4" 
+                      placeholder="请输入分数" 
+                      @input="validateScore4" 
+                      required
+                    />
+                  </div>
+                  
+                </div>
               </el-form>
               
-              <h3>音频质量</h3>
-              <el-form ref="form" label-width="70px" style="margin-top: 20px;" :inline="true"
+              <!-- /// <h3>音频质量</h3> -->
+              <el-form ref="form" label-width="70px" style="margin-top: 50px;" :inline="true"
                        :model="form"
                        :rules="rules">
-                <el-tooltip class="item" effect="dark" content="Right Bottom 提示文字" placement="left-start">
+                <el-tooltip placement="left" effect="customized">
                   <div slot="content">
                     90-100分：表现完美，音色悦耳具有辨识度，技巧发挥成熟自然，<br/>情感张力大，能打动人心；<br/><br/>80-89分：
                     表现良好，音色悦耳，技巧发挥成熟自然，<br/>有一定的情感表现；
@@ -201,14 +266,30 @@
                     个别乐句音准、节奏把握不准确，音域也基本可以达到歌曲要求<br/>但整体的气息不够稳定，声乐技巧上的使用不够成熟，情感表现弱；
                     <br/><br/>59分以下： 有1/3的音准节奏问题，音域达不到歌曲要求；<br/>其他共鸣技巧等发挥也都比较糟糕，大白嗓严重；
                   </div>
-                  <el-button>评分</el-button>
                 </el-tooltip>
-                <el-form-item prop="score5" style="margin-left: 90px">
-                  <el-input v-model="form.score5" placeholder="请输入分数"></el-input>
-                </el-form-item>
-                <!--              <el-form-item>-->
-                <!--                <el-button @click="submit" type="primary">提交</el-button>-->
-                <!--              </el-form-item>-->
+                <div class="form-container">
+                  <el-tooltip placement="left" effect="customized">
+                    <div slot="content">
+                      90-100分：none，<br/>none；<br/><br/>80-89分：
+                      none；
+                      <br/><br/>70-79分： none，<br/>none；<br/><br/>60-69分：
+                      none<br/>none；
+                      <br/><br/>59分以下： none；<br/>none；
+                    </div>
+                  <el-button class="highlight-button button-5">音频质量</el-button>
+                  </el-tooltip>
+                  <div class="form-control">
+                    <input 
+                      type="text" 
+                      v-model="form.score5" 
+                      :aria-valid="isScoreValid5" 
+                      placeholder="请输入分数" 
+                      @input="validateScore5" 
+                      required
+                    />
+                  </div>
+                  
+                </div>
               </el-form>
               
               <el-button size="mini">情感标签是否正确</el-button>
@@ -264,6 +345,8 @@ import {
   createDimensionScore
 } from "@/api/api";
 import {user_id} from "@/store/getters";
+import CustomInput from './CustomInput.vue';
+
 
 function realFormatSecond(second) {
   var secondType = typeof second
@@ -284,6 +367,10 @@ function realFormatSecond(second) {
 
 
 export default {
+
+  components: {
+    CustomInput
+  },
   name: "User",
   components: {APlayer},
   props: {
@@ -308,6 +395,11 @@ export default {
       ///radio10: '',
       radio11: '',
       ismark: [],
+      isScoreValid1: 'false',
+      isScoreValid2: 'false',
+      isScoreValid3: 'false',
+      isScoreValid4: 'false',
+      isScoreValid5: 'false',
       form: {
         score: '',
         score2: '', ///
@@ -318,6 +410,7 @@ export default {
         clip_score: '',
         dimension_score: ''
       },
+
       // startTime: '',
       // endTime: '',
       audio: {
@@ -504,6 +597,46 @@ export default {
       this.box.onerror = function () {
         console.log("加载出错！");
       };
+    },
+    validateScore1() {
+      const ScoreValue1 = this.form.score;
+      if (/^(?:[1-9]?[0-9]|100)$/.test(ScoreValue1)) {
+        this.isScoreValid1 = 'true';
+      } else {
+        this.isScoreValid1 = 'false';
+      }
+    },
+    validateScore2() {
+      const ScoreValue2 = this.form.score2;
+      if (/^(?:[1-9]?[0-9]|100)$/.test(ScoreValue2)) {
+        this.isScoreValid2 = 'true';
+      } else {
+        this.isScoreValid2 = 'false';
+      }
+    },
+    validateScore3() {
+      const ScoreValue3 = this.form.score3;
+      if (/^(?:[1-9]?[0-9]|100)$/.test(ScoreValue3)) {
+        this.isScoreValid3 = 'true';
+      } else {
+        this.isScoreValid3 = 'false';
+      }
+    },
+    validateScore4() {
+      const ScoreValue4 = this.form.score4;
+      if (/^(?:[1-9]?[0-9]|100)$/.test(ScoreValue4)) {
+        this.isScoreValid4 = 'true';
+      } else {
+        this.isScoreValid4 = 'false';
+      }
+    },
+    validateScore5() {
+      const ScoreValue5 = this.form.score5;
+      if (/^(?:[1-9]?[0-9]|100)$/.test(ScoreValue5)) {
+        this.isScoreValid5 = 'true';
+      } else {
+        this.isScoreValid5 = 'false';
+      }
     },
     ///dayin1(val) {
     ///  console.log(val)
@@ -910,8 +1043,10 @@ export default {
           this.name = response.data.music_name
           this.singer = response.data.singer
           this.genre = response.data.genre
-          // console.log("1111111111111")
+          console.log("1111111111111")
+          console.log(response.data.src) ///
           this.src = require('@/assets/mp3/' + this.singer + '-' + this.name + '_(Vocals)' + '.wav')
+          console.log(this.src) ///
           // this.src = require(" "+response.data.src)
           this.$refs.audio.src = this.src;
           this.play = true;
@@ -1091,6 +1226,15 @@ export default {
 
 }
 </script>
+
+///
+<style>
+.el-form {
+  line-height: 60px; /* 根据需要调整行高 */
+}
+</style>
+///
+
 <style>
 >>> .el-dialog {
   display: flex;
@@ -1284,4 +1428,317 @@ export default {
 .el-table .three-row {
   background: #EBF4FA;
 }
+</style>
+
+///
+<style scoped>
+.highlight-button {
+  font-size: 20px; /* 字体大小 */
+  font-weight: bold; /* 字体加粗 */
+  padding: 10px 20px; /* 内边距 */
+  border: 2px solid #2c6fdb; /* 边框颜色 */
+  transition: all 0.3s ease; /* 动画效果 */
+  background-color: #ffffff; /* 背景颜色 */
+  color: #2c6fdb; /* 字体颜色 */
+}
+
+.highlight-button:hover {
+  border-color: #1a4d9b; /* 悬停时边框颜色 */
+  color: #1a4d9b; /* 悬停时字体颜色 */
+  background-color: #f0f0f0; /* 悬停时背景颜色 */
+  transform: scale(1.35); /* 悬停时放大效果 */
+}
+</style>
+///
+<style scoped>
+.highlight-button {
+  width: 130px;
+  height: 40px;
+  color: #fff;
+  border-radius: 5px; /* 圆角 */
+  padding: 10px 25px;
+  font-family: 'Lato', sans-serif;
+  font-weight: 500;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  display: inline-block;
+  box-shadow: inset 2px 2px 2px 0px rgba(255,255,255,.5),
+              7px 7px 20px 0px rgba(0,0,0,.1),
+              4px 4px 5px 0px rgba(0,0,0,.1);
+  outline: none;
+}
+
+/* 5 */
+.button-5 {
+  width: 130px;
+  height: 40px;
+  line-height: 42px;
+  padding: 0;
+  border: none;
+  background: rgb(240, 240, 240); /* 灰白色背景 */
+  background: linear-gradient(0deg, rgba(240, 240, 240, 1) 0%, rgba(220, 220, 220, 1) 100%);
+  color: #2d467b;
+}
+.button-5:hover {
+  color: #5591dc;
+  background: transparent;
+   box-shadow:none;
+}
+.button-5:before,
+.button-5:after{
+  content:'';
+  position:absolute;
+  top:0;
+  right:0;
+  height:2px;
+  width:0;
+  background: #5591dc;
+  box-shadow:
+   -1px -1px 5px 0px #fff,
+   7px 7px 20px 0px #0003,
+   4px 4px 5px 0px #0002;
+  transition:400ms ease all;
+}
+.button-5:after{
+  right:inherit;
+  top:inherit;
+  left:0;
+  bottom:0;
+}
+.button-5:hover:before,
+.button-5:hover:after{
+  width:100%;
+  transition:800ms ease all;
+}
+
+/* 6 */
+.button-6 {
+  background: rgb(247,150,192);
+background: radial-gradient(circle, rgba(247,150,192,1) 0%, rgba(118,174,241,1) 100%);
+  line-height: 42px;
+  padding: 0;
+  border: none;
+}
+.button-6 span {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.button-6:before,
+.button-6:after {
+  position: absolute;
+  content: "";
+  height: 0%;
+  width: 1px;
+ box-shadow:
+   -1px -1px 20px 0px rgba(255,255,255,1),
+   -4px -4px 5px 0px rgba(255,255,255,1),
+   7px 7px 20px 0px rgba(0,0,0,.4),
+   4px 4px 5px 0px rgba(0,0,0,.3);
+}
+.button-6:before {
+  right: 0;
+  top: 0;
+  transition: all 500ms ease;
+}
+.button-6:after {
+  left: 0;
+  bottom: 0;
+  transition: all 500ms ease;
+}
+.button-6:hover{
+  background: transparent;
+  color: #76aef1;
+  box-shadow: none;
+}
+.button-6:hover:before {
+  transition: all 500ms ease;
+  height: 100%;
+}
+.button-6:hover:after {
+  transition: all 500ms ease;
+  height: 100%;
+}
+.button-6 span:before,
+.button-6 span:after {
+  position: absolute;
+  content: "";
+  box-shadow:
+   -1px -1px 20px 0px rgba(255,255,255,1),
+   -4px -4px 5px 0px rgba(255,255,255,1),
+   7px 7px 20px 0px rgba(0,0,0,.4),
+   4px 4px 5px 0px rgba(0,0,0,.3);
+}
+.button-6 span:before {
+  left: 0;
+  top: 0;
+  width: 0%;
+  height: .5px;
+  transition: all 500ms ease;
+}
+.button-6 span:after {
+  right: 0;
+  bottom: 0;
+  width: 0%;
+  height: .5px;
+  transition: all 500ms ease;
+}
+.button-6 span:hover:before {
+  width: 100%;
+}
+.button-6 span:hover:after {
+  width: 100%;
+}
+
+/* 9 */
+.btn-9 {
+  border: none;
+  transition: all 0.3s ease;
+  overflow: hidden;
+  background-color: #15559a;
+}
+.btn-9:after {
+  position: absolute;
+  content: " ";
+  z-index: -1;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+   background-color: #1fd1f9;
+background-image: linear-gradient(315deg, #1fd1f9 0%, #3b5bdb 74%);
+  transition: all 0.3s ease;
+}
+.btn-9:hover {
+  background: transparent;
+  box-shadow:  4px 4px 6px 0 rgba(255,255,255,.5),
+              -4px -4px 6px 0 rgba(116, 125, 136, .2), 
+    inset -4px -4px 6px 0 rgba(255,255,255,.5),
+    inset 4px 4px 6px 0 rgba(116, 125, 136, .3);
+  color: #fff;
+}
+.btn-9:hover:after {
+  -webkit-transform: scale(2) rotate(180deg);
+  transform: scale(2) rotate(180deg);
+  box-shadow:  4px 4px 6px 0 rgba(255,255,255,.5),
+              -4px -4px 6px 0 rgba(116, 125, 136, .2), 
+    inset -4px -4px 6px 0 rgba(255,255,255,.5),
+    inset 4px 4px 6px 0 rgba(116, 125, 136, .3);
+}
+
+/* 9 */
+.btn-9b {
+  border: none;
+  transition: all 0.3s ease;
+  overflow: hidden;
+  background-color: #f29a76;
+}
+.btn-9b:after {
+  position: absolute;
+  content: " ";
+  z-index: -1;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+   background-color: #1fd1f9;
+background-image: linear-gradient(315deg, #ffc9c9 0%, #ff6b6b 74%);
+  transition: all 0.3s ease;
+}
+.btn-9b:hover {
+  background: transparent;
+  box-shadow:  4px 4px 6px 0 rgba(255,255,255,.5),
+              -4px -4px 6px 0 rgba(116, 125, 136, .2), 
+    inset -4px -4px 6px 0 rgba(255,255,255,.5),
+    inset 4px 4px 6px 0 rgba(116, 125, 136, .3);
+  color: #fff;
+}
+.btn-9b:hover:after {
+  -webkit-transform: scale(2) rotate(180deg);
+  transform: scale(2) rotate(180deg);
+  box-shadow:  4px 4px 6px 0 rgba(255,255,255,.5),
+              -4px -4px 6px 0 rgba(116, 125, 136, .2), 
+    inset -4px -4px 6px 0 rgba(255,255,255,.5),
+    inset 4px 4px 6px 0 rgba(116, 125, 136, .3);
+}
+
+
+</style>
+
+<style>
+/* tooltip body */
+.el-tooltip__popper.is-customized {
+  background: #026b9f;
+  transform: translateX(-20px);
+  color: #e8d8bb; /* 文字颜色 */
+}
+
+/* tooltip arrow body */
+.el-tooltip__popper.is-customized .popper__arrow {
+  border-left-color: #026b9f;
+}
+
+/* tooltip arrow border */
+.el-tooltip__popper.is-customized .popper__arrow::after {
+  border-left-color: #026b9f;
+}
+
+</style>
+
+<style scoped>
+.box-card {
+  background-color: #f0f4f7; /* 修改背景颜色 */
+  color: #333; /* Adjust text color for better readability on the background image */
+}
+</style>
+
+<style scoped>
+
+.form-container {
+  display: flex;
+  align-items: center;
+}
+
+.form-control {
+  flex: 1;
+  margin-right: 10px;
+}
+
+input {
+  font-size: inherit;
+  width: 30%;  /* 修改输入框宽度 */
+  height: 30px; /* 修改输入框高度 */
+  color: #000; /* 修改字体颜色 */
+  margin-left: 50px;
+  outline: none;
+  display: block;
+  font-weight: 400;
+  line-height: 1.6;
+  padding: 3px 3px 3px 10px;
+  border-radius: 10px;
+  border: 2px solid #8c8c8c;
+  background-color: transparent;
+  transition: border-color 0.2s ease-in-out;
+  background-repeat: no-repeat;
+  background-position: right 2% center;
+  background-size: 1.5rem 1.5rem; /* 修改图片大小 */
+}
+
+input:focus {
+  border-color: #de4437;
+}
+
+input[aria-valid="false"] {
+  border-color: #f6c1b7;
+  background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHdpZHRoPScxMicgaGVpZ2h0PScxMicgZmlsbD0nbm9uZScgc3Ryb2tlPScjZGU0NDM3JyB2aWV3Qm94PScwIDAgMTIgMTInPjxjaXJjbGUgY3g9JzYnIGN5PSc2JyByPSc0LjUnLz48cGF0aCBzdHJva2UtbGluZWpvaW49J3JvdW5kJyBkPSdNNS44IDMuNmguNEw2IDYuNXonLz48Y2lyY2xlIGN4PSc2JyBjeT0nOC4yJyByPScuNicgZmlsbD0nI2RlNDQzNycgc3Ryb2tlPSdub25lJy8+PC9zdmc+');
+}
+
+input[aria-valid="true"] {
+  border-color: #077349;
+  background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHdpZHRoPSc4JyBoZWlnaHQ9JzgnIHZpZXdCb3g9JzAgMCA4IDgnPjxwYXRoIGZpbGw9JyMzN0M2MjUnIGQ9J00yLjMgNi43M0wuNiA0LjUzYy0uNC0xLjA0LjQ2LTEuNCAxLjEtLjhsMS4xIDEuNCAzLjQtMy44Yy42LS42MyAxLjYtLjI3IDEuMi43bC00IDQuNmMtLjQzLjUtLjguNC0xLjEuMXonLz48L3N2Zz4=');
+}
+
 </style>
