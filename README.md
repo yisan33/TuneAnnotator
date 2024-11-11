@@ -1,4 +1,4 @@
-# music-score
+# Tune-Annotator
 
 ## Project setup
 ```

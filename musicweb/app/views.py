@@ -11,6 +11,11 @@ from decimal import Decimal
 from datetime import datetime
 from .models import *
 
+##
+from django.core.exceptions import ObjectDoesNotExist
+from django.db.models import Q  
+##
+
 
 # json编码
 class MyEncoder(json.JSONEncoder):
@@ -106,42 +111,46 @@ def get_a_song_random(request):
     body = json.loads(request.body)
     user_id = body['user_id']
     # 测试用户没有歌曲限制
-    if user_id == '1' or user_id == 1 or user_id == '2' or user_id == 2:
-        marked_music = MarkedScore.objects.filter(user_id=user_id).values('music_id')
-        unmark_musics = list(Music.objects.exclude(music_id__in=marked_music).values())
+    ## if user_id == '1' or user_id == 1 or user_id == '2' or user_id == 2:
+    marked_music = MarkedScore.objects.filter(user_id=user_id).values('music_id')
+    unmark_musics = list(Music.objects.exclude(music_id__in=marked_music).values())
 
-    # 专家
-    else:
-        user_musics = AssignUserMusic.objects.filter(user_id=user_id)
-        ### 每天标注歌曲数限制 ###
-        marked_scores = MarkedScore.objects.filter(user_id=user_id)
-        # 本次标注的歌曲数
-        total_number = user_musics.count()
-        # 统计当天标的歌曲数
-        now = datetime.now()
-        today_number = 0
-        for marked_score in marked_scores:
-            date = str(marked_score.mark_time)
-            date = date.split(" ")[0].split("-")
-            if int(date[0]) == now.year and int(date[1]) == now.month and int(date[2]) == now.day:
-                today_number += 1
-        # 每天标注的歌曲数为 本批次标注的歌曲数/2
-        if total_number % 2 == 1:
-            day_limit = (total_number + 1) / 2
-        else:
-            day_limit = total_number / 2
-        # 若达上限则停止标注
-        # if today_number >= day_limit:
-        #     print("用户", user_id, "今日标注达到上限")
-        #     return HttpResponse("今日标注结束")
-        # 未标记的歌曲
-        unmark_music_ids = user_musics.filter(is_mark=0).values('music_id')
-        unmark_musics = list(Music.objects.filter(music_id__in=unmark_music_ids).values())
+    marked_count = marked_music.count()
+    unmarked_count = len(unmark_musics)
+
+    # # 专家
+    # else:
+    #     user_musics = AssignUserMusic.objects.filter(user_id=user_id)
+    #     ### 每天标注歌曲数限制 ###
+    #     marked_scores = MarkedScore.objects.filter(user_id=user_id)
+    #     # 本次标注的歌曲数
+    #     total_number = user_musics.count()
+    #     # 统计当天标的歌曲数
+    #     now = datetime.now()
+    #     today_number = 0
+    #     for marked_score in marked_scores:
+    #         date = str(marked_score.mark_time)
+    #         date = date.split(" ")[0].split("-")
+    #         if int(date[0]) == now.year and int(date[1]) == now.month and int(date[2]) == now.day:
+    #             today_number += 1
+    #     # 每天标注的歌曲数为 本批次标注的歌曲数/2
+    #     if total_number % 2 == 1:
+    #         day_limit = (total_number + 1) / 2
+    #     else:
+    #         day_limit = total_number / 2
+    #     # 若达上限则停止标注
+    #     # if today_number >= day_limit:
+    #     #     print("用户", user_id, "今日标注达到上限")
+    #     #     return HttpResponse("今日标注结束")
+    #     # 未标记的歌曲
+    #     unmark_music_ids = user_musics.filter(is_mark=0).values('music_id')
+    #     unmark_musics = list(Music.objects.filter(music_id__in=unmark_music_ids).values())
 
     end = len(unmark_musics) - 1
     if end < 0:
         print("用户", user_id, "本次标注达到上限")
-        return HttpResponse("本次标注结束")
+        ## return HttpResponse("本次标注结束")
+        return HttpResponse("没有需要标注的歌曲")
     index = random.randint(0, end)
     song = unmark_musics[index]
     info = {}
@@ -152,6 +161,10 @@ def get_a_song_random(request):
     info['harmony_quantity'] = song['harmony_quantity']
     info['src'] = str(song['src'])
     info['marked_number'] = song['marked_number']
+
+    info['marked_count'] = marked_count
+    info['unmarked_count'] = unmarked_count
+
     data = json.dumps(info)
     return HttpResponse(data, content_type="application/json")
 
@@ -208,6 +221,57 @@ def clip_get_a_song_random(request):
     info['marked_number'] = song['marked_number']
     data = json.dumps(info)
     return HttpResponse(data, content_type="application/json")
+
+## 
+@csrf_exempt
+def find_song_of_vocal_version(request):
+    body = json.loads(request.body)
+    song_name = body['song_name']
+    singer_name = body['singer_name']
+    
+    try:
+        song = Music_Vocal.objects.get(music_name=song_name, singer=singer_name)
+        # print(f"Found song: {song}")
+
+        info = {}
+        info['music_id'] = str(song.music_id)
+        info['music_name'] = song.music_name
+        info['singer'] = song.singer
+        info['genre'] = song.genre
+        info['harmony_quantity'] = song.harmony_quantity
+        info['src'] = str(song.src)
+        info['marked_number'] = song.marked_number
+
+
+        data = json.dumps(info)
+        return HttpResponse(data, content_type="application/json")
+    except ObjectDoesNotExist:
+        return JsonResponse({'error': 'Song not found'}, status=404)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+@csrf_exempt
+def find_song_of_instrumental_version(request):
+    body = json.loads(request.body)
+    song_name = body['song_name']
+    singer_name = body['singer_name']
+
+    song = Music_Instrumental.objects.get(music_name=song_name, singer=singer_name)
+
+    info = {
+        'music_id': str(song.music_id),
+        'music_name': song.music_name,
+        'singer': song.singer,
+        'genre': song.genre,
+        'harmony_quantity': song.harmony_quantity,
+        'src': str(song.src),
+        'marked_number': song.marked_number
+    }
+
+    data = json.dumps(info)
+    return HttpResponse(data, content_type="application/json")
+
+## 
 
 # 修改歌曲流派
 @csrf_exempt
@@ -294,6 +358,13 @@ def get_user_page_scores(request):
     for score in scores:
         music = Music.objects.filter(music_id=score['music_id_id']).values()
         music = list(music[:])
+        ## 新增对于四个维度分的获取
+        dimension_scores = DimensionScore.objects.filter(user_id=user_id, music_id=score['music_id_id']).values()
+        dimension_score_0 = list(dimension_scores[:])[0]
+        dimension_score_1 = list(dimension_scores[:])[1]
+        dimension_score_2 = list(dimension_scores[:])[2]
+        dimension_score_3 = list(dimension_scores[:])[3]
+        ##
         info = {}
         info['score_id'] = score['score_id']
         info['music_id'] = music[0]['music_id']
@@ -301,6 +372,16 @@ def get_user_page_scores(request):
         info['singer'] = music[0]['singer']
         info['score'] = score['score']
         info['mark_time'] = score['mark_time']
+        ## 新增对于四个维度分的获取
+        info['dimension_score_0_id'] = dimension_score_0['dimension_score_id']
+        info['dimension_score_0'] = dimension_score_0['dimension_score']
+        info['dimension_score_1_id'] = dimension_score_1['dimension_score_id']
+        info['dimension_score_1'] = dimension_score_1['dimension_score']
+        info['dimension_score_2_id'] = dimension_score_2['dimension_score_id']
+        info['dimension_score_2'] = dimension_score_2['dimension_score']
+        info['dimension_score_3_id'] = dimension_score_3['dimension_score_id']
+        info['dimension_score_3'] = dimension_score_3['dimension_score']
+        ##
         infos.append(info)
     data = json.dumps(infos, cls=MyEncoder)
     return HttpResponse(data, content_type="application/json")
@@ -311,10 +392,20 @@ def get_user_page_scores(request):
 def get_marked_scores_by_query(request):
     body = json.loads(request.body)
     query = body['query']
+    ## user_id = body['user_id'] ##
     music_name_scores = MarkedScore.objects.filter(music_id__music_name__contains=query)
-    singer_scores = MarkedScore.objects.filter(music_id__singer__contains=query)
-    score_scores = MarkedScore.objects.filter(score__contains=query)
-    scores = score_scores.union(music_name_scores, singer_scores)
+    ## singer_scores = MarkedScore.objects.filter(music_id__singer__contains=query)
+    ## score_scores = MarkedScore.objects.filter(score__contains=query)
+    ## scores = score_scores.union(music_name_scores, singer_scores)
+    ## music_name_scores = MarkedScore.objects.filter(music_id__music_name__contains=query, user_id = user_id)
+    scores = music_name_scores
+    # scores = MarkedScore.objects.filter(
+    #     Q(music_id__music_name__contains=query) |
+    #     Q(music_id__singer__contains=query) |
+    #     Q(score__contains=query)
+    # )
+    ##
+
     # 无记录时返回查询不到？
     scores = scores.values()
     scores = list(scores[:])
@@ -375,6 +466,28 @@ def create_dimension_score(request):
 ##
 
 
+## 情感标签
+@csrf_exempt
+def create_music_emotion(request):
+    body = json.loads(request.body)
+    user = User.objects.get(user_id=body['user_id'])
+    music = Music.objects.get(music_id=body['music_id'])
+    emotion = body['emotion']
+    if (MusicEmotion.objects.filter(user_id=user, music_id=music, emotion=emotion).count() != 0):
+        marked_emotion = MusicEmotion.objects.get(user_id=user, music_id=music)
+        marked_emotion.emotion = body['emotion']
+        marked_emotion.mark_time = timezone.now()
+        marked_emotion.save()
+    else:
+        marked_emotion = MusicEmotion(user_id=user, music_id=music, emotion=body['emotion'])
+        marked_emotion.save()
+    music_id = body['music_id']
+    marked_number = MusicEmotion.objects.filter(music_id=music_id).count()
+    Music.objects.filter(music_id=music_id).update(marked_number=marked_number)
+    return HttpResponse("success")
+
+
+
 # 修改单条评分
 @csrf_exempt
 def update_marked_score(request):
@@ -396,15 +509,45 @@ def update_marked_score(request):
 def delete_marked_score(request):
     body = json.loads(request.body)
     score_id = body['score_id']
+    ## 新增删除四个维度分的评估结果
+    dimension_score_0_id = body['dimension_score_0_id']
+    dimension_score_1_id = body['dimension_score_1_id']
+    dimension_score_2_id = body['dimension_score_2_id']
+    dimension_score_3_id = body['dimension_score_3_id']
+    ##
     try:
         marked_score = MarkedScore.objects.get(score_id=score_id)
     except MarkedScore.DoesNotExist:
         return HttpResponse("该记录不存在", status=400)
+    ## 新增删除四个维度分的评估结果
+    try:
+        marked_dimension_score_0 = DimensionScore.objects.get(dimension_score_id=dimension_score_0_id)
+    except DimensionScore.DoesNotExist:
+        return HttpResponse("该维度分记录不存在", status=400)
+    try:
+        marked_dimension_score_1 = DimensionScore.objects.get(dimension_score_id=dimension_score_1_id)
+    except DimensionScore.DoesNotExist:
+        return HttpResponse("该维度分记录不存在", status=400)
+    try:
+        marked_dimension_score_2 = DimensionScore.objects.get(dimension_score_id=dimension_score_2_id)
+    except DimensionScore.DoesNotExist:
+        return HttpResponse("该维度分记录不存在", status=400)
+    try:
+        marked_dimension_score_3 = DimensionScore.objects.get(dimension_score_id=dimension_score_3_id)
+    except DimensionScore.DoesNotExist:
+        return HttpResponse("该维度分记录不存在", status=400)
+    ##
     user_id = marked_score.user_id
     music_id = marked_score.music_id
     clips = MarkedClip.objects.filter(user_id=user_id, music_id=music_id)
     marked_score.delete()
     clips.delete()
+    ## 新增删除四个维度分的评估结果
+    marked_dimension_score_0.delete()
+    marked_dimension_score_1.delete()
+    marked_dimension_score_2.delete()
+    marked_dimension_score_3.delete()
+    ##
     return HttpResponse("success")
 
 
@@ -418,26 +561,43 @@ def get_user_music_dimension_scores(request):
     music_id = body['music_id']
     response = []
     # 子维度
-    dimension_scores = MarkedDimensionScore.objects.filter(user_id=user_id, music_id=music_id).exclude(dimension='加权平均分').values()
-    dimension_scores = list(dimension_scores[:])
-    response = response + dimension_scores
+    ## dimension_scores = MarkedDimensionScore.objects.filter(user_id=user_id, music_id=music_id).exclude(dimension='加权平均分').values()
+    ## dimension_scores = list(dimension_scores[:])
+    ## response = response + dimension_scores
     # 将歌曲的流派和和声占比作为一个子维度放到维度列表中，使前端能够一并显示
     music = Music.objects.filter(music_id=music_id).values()
+    ##
+    ## print(music)
+    ## music = Music.objects.filter(user_id=user_id, music_id=music_id).values()
     music = list(music[:])[0]
     music_genre = {}
     music_genre['dimension'] = '流派'
     music_genre['dimension_score'] = music['genre']
-    music_harmony_quantity = {}
-    music_harmony_quantity['dimension'] = '和声是否多'
-    music_harmony_quantity['dimension_score'] = music['harmony_quantity']
+    ## music_harmony_quantity = {}
+    ## music_harmony_quantity['dimension'] = '和声是否多'
+    ## music_harmony_quantity['dimension_score'] = music['harmony_quantity']
     response.append(music_genre)
-    response.append(music_harmony_quantity)
+    ## response.append(music_harmony_quantity)
     # 将整体分数作为一个子维度放到维度列表中，使前端能够一并显示
     marked_score = MarkedScore.objects.filter(user_id=user_id, music_id=music_id).values()
     marked_score = list(marked_score[:])[0]
     marked_score['dimension'] = '整体分数'
     marked_score['dimension_score'] = marked_score['score']
     response.append(marked_score)
+    ## 新增对四个维度的分数获取
+    marked_dimension_score_0 = DimensionScore.objects.filter(user_id=user_id, music_id=music_id).values()
+    marked_dimension_score_0 = list(marked_dimension_score_0[:])[0]
+    response.append(marked_dimension_score_0)
+    marked_dimension_score_1 = DimensionScore.objects.filter(user_id=user_id, music_id=music_id).values()
+    marked_dimension_score_1 = list(marked_dimension_score_1[:])[1]
+    response.append(marked_dimension_score_1)
+    marked_dimension_score_2 = DimensionScore.objects.filter(user_id=user_id, music_id=music_id).values()
+    marked_dimension_score_2 = list(marked_dimension_score_2[:])[2]
+    response.append(marked_dimension_score_2)
+    marked_dimension_score_3 = DimensionScore.objects.filter(user_id=user_id, music_id=music_id).values()
+    marked_dimension_score_3 = list(marked_dimension_score_3[:])[3]
+    response.append(marked_dimension_score_3)
+    ##
     data = json.dumps(response, cls=MyEncoder)
     return HttpResponse(data, content_type="application/json")
 
@@ -470,8 +630,10 @@ def update_marked_dimension_score(request):
     # new_dimension = body['new_dimension']
     new_dimension_score = body['new_dimension_score']
     try:
-        marked_dimension_score = MarkedDimensionScore.objects.get(dimension_score_id=dimension_score_id)
-    except MarkedDimensionScore.DoesNotExist:
+        ## marked_dimension_score = MarkedDimensionScore.objects.get(dimension_score_id=dimension_score_id)
+        marked_dimension_score = DimensionScore.objects.get(dimension_score_id=dimension_score_id)
+    ## except MarkedDimensionScore.DoesNotExist:
+    except DimensionScore.DoesNotExist:
         return HttpResponse("该记录不存在", status=400)
     # marked_dimension_score.dimension = new_dimension
     marked_dimension_score.dimension_score = new_dimension_score

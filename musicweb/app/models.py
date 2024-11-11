@@ -22,6 +22,24 @@ class Music(models.Model):
     src = models.FileField(max_length=300, default=None)
     marked_number = models.IntegerField(default=0)
 
+class Music_Vocal(models.Model):
+    music_id = models.AutoField(primary_key=True)
+    music_name = models.CharField(max_length=30, default='')
+    singer=models.CharField(max_length=30, default='')
+    genre = models.CharField(max_length=30, default='')
+    harmony_quantity = models.IntegerField(default=0) 
+    src = models.FileField(max_length=300, default=None)
+    marked_number = models.IntegerField(default=0)
+
+class Music_Instrumental(models.Model):
+    music_id = models.AutoField(primary_key=True)
+    music_name = models.CharField(max_length=30, default='')
+    singer=models.CharField(max_length=30, default='')
+    genre = models.CharField(max_length=30, default='')
+    harmony_quantity = models.IntegerField(default=0) 
+    src = models.FileField(max_length=300, default=None)
+    marked_number = models.IntegerField(default=0)
+
 
 class MarkedScore(models.Model):
     score_id = models.AutoField(primary_key=True)
@@ -67,3 +85,12 @@ class DimensionScore(models.Model):
     class Meta:
         db_table = 'DimensionScore'
 
+class MusicEmotion(models.Model):
+    dimension_score_id = models.AutoField(primary_key=True)
+    user_id = models.ForeignKey(to=User, db_column='user_id', on_delete=models.CASCADE)
+    music_id = models.ForeignKey(to=Music, db_column='music_id', on_delete=models.CASCADE)
+    emotion = models.CharField(max_length=30, default='')
+    mark_time = models.DateTimeField(default = timezone.now)
+
+    class Meta:
+        db_table = 'MusicEmotion'

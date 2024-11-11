@@ -10,6 +10,7 @@ urlpatterns = [
     path('get_marked_clips/', views.get_marked_clips),
     path('create_marked_score/', views.create_marked_score),
     path('create_dimension_score/', views.create_dimension_score), ##
+    path('create_music_emotion/', views.create_music_emotion), ##
     path('create_marked_clip/', views.create_marked_clip),
     path('get_user_scores/', views.get_user_scores),
     path('get_user_clips/', views.get_user_clips),
@@ -17,6 +18,8 @@ urlpatterns = [
     path('get_user_page_scores/', views.get_user_page_scores),
     path('get_a_song_random/', views.get_a_song_random),
     path('clip_get_a_song_random/', views.clip_get_a_song_random),
+    path('find_song_of_vocal_version/', views.find_song_of_vocal_version), ##
+    path('find_song_of_instrumental_version/', views.find_song_of_instrumental_version), ##
     path('update_marked_score/', views.update_marked_score),
     path('delete_marked_score/', views.delete_marked_score),
     path('update_marked_clip/', views.update_marked_clip),

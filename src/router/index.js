@@ -8,6 +8,8 @@ import PageOne from '../views/PageOne'
 import PageTwo from '../views/PageTwo'
 import Login from '../views/Login'
 import register from '../views/register'
+import EndPage from '../views/EndPage'
+
 Vue.use(VueRouter)
 
 const routes = [
@@ -36,6 +38,11 @@ const routes = [
     path: '/login',
     name: 'login',
     component: Login
+  },
+  {
+    path: '/EndPage',
+    name: 'EndPage',
+    component: EndPage
   },
 
 

@@ -64,7 +64,7 @@ export default {
 
 .input-data input:focus ~ label,
 .input-data input:valid ~ label {
-  transform: translateY(-35px);
+  transform: translateY(-20px);
   font-size: 15px;
   color: #2c6fdb;
 }

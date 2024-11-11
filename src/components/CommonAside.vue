@@ -45,33 +45,40 @@
     data() {
       return {
         menuData: [
-          {
-            path: '/',
-            name: 'home',
-            label: '首页',
-            icon: 's-home',
-            url: 'Home/Home',
-          },
-          {
-            path: '/user',
-            name: 'user',
-            label: '开始评价',
-            icon: 'user',
-            url: 'UserManage/Usermanage',
-          },
-          //   {
-          //   path: '/scorelist',
-          //   name: 'scorelist',
-          //   label: '评价列表',
+          // {
+          //   path: '/',
+          //   name: 'home',
+          //   label: '首页',
+          //   icon: 's-home',
+          //   url: 'Home/Home',
+          // },
+          // {
+          //   path: '/user',
+          //   name: 'user',
+          //   label: '开始评价',
           //   icon: 'user',
-          //   url: 'ScoreManage/Scoremanage',
+          //   url: 'UserManage/Usermanage',
           // },
           {
-            path: '/page1',
-                name: 'page1',
-                label: '质量评估',
-                icon: 'setting',
-                url: 'Other/PageOne',
+            path: '/scorelist',
+            name: 'scorelist',
+            label: '评价列表',
+            icon: 'user',
+            url: 'ScoreManage/Scoremanage',
+          },
+          // {
+          //   path: '/page1',
+          //       name: 'page1',
+          //       label: '质量评估',
+          //       icon: 'setting',
+          //       url: 'Other/PageOne',
+          // },
+          {
+            path: '/page2',
+            name: 'page2',
+            label: '测试页',
+            icon: 'setting',
+            url: 'Other/PageTwo',
           }
           // {
           //   label: '其他',

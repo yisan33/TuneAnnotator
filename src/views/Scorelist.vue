@@ -82,6 +82,8 @@
     <!--      </span>-->
     <!--    </el-dialog>-->
 
+    
+    
     <el-dialog
         title="提示：（只可以输入1~5之间的数）"
         :visible.sync="dimensionVisible"
@@ -101,6 +103,26 @@
           <el-button type="primary" @click="subdimension(clipp)">确 定</el-button>
       </span>
     </el-dialog>
+    
+    
+    <el-dialog
+        title="提示：（维度修改）"
+        :visible.sync="dimensionVisible"
+        width="50%"
+        :before-close="dimensionClose">
+      <el-form ref="form2" :rules="rules2" :inline="true" :model="form2" label-width="80px">
+
+        <el-form-item label="分数" prop="dimension_score">
+          <el-input placeholder="请输入分数" v-model="form2.dimension_score"></el-input>
+        </el-form-item>
+
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+          <el-button @click="cancel1">取 消</el-button>
+          <el-button type="primary" @click="subdimension(clipp)">确 定</el-button>
+      </span>
+    </el-dialog>
+    
 
     <el-dialog
         title="维度评价列表"
@@ -302,6 +324,11 @@ export default {
         score: '',
         // mark_time: '',
       },
+      ///
+      form2: {
+        dimension_score: '',
+      },
+      ///
       fclip: {
         type: '',
         start_time: '',
@@ -327,6 +354,13 @@ export default {
           {required: true, message: '请输入分数'}
         ],
       },
+      ///
+      rules2: {
+        dimension_score: [
+          { required: true, message: '请输入分数'}
+        ],
+      },
+      ///
       rules: {
         score: [
           {required: true, message: '请输入分数'}
@@ -453,6 +487,8 @@ export default {
       // 关闭弹窗
       this.clipVisible = false
     },
+    ///
+    /*
     subdimension() {
       let new_dimension_score = this.fclip.dimension_score
       console.log(new_dimension_score)
@@ -480,6 +516,37 @@ export default {
         });
       }
     },
+    */
+    ///
+    subdimension() {
+      let new_dimension_score = Number(this.form2.dimension_score)
+      console.log(new_dimension_score)
+      console.log(this.dimensionid)
+      if (new_dimension_score >= 0 && new_dimension_score <= 100 && Number.isInteger(new_dimension_score)) {
+        updateAMarkedDimensionscore({
+          'dimension_score_id': this.dimensionid,
+          'new_dimension_score': new_dimension_score,
+        }).then(response => {
+          if (response.status === 200) {
+            this.$message({
+              type: 'success',
+              message: '修改成功!'
+            });
+            this.getdimension()
+          }
+        })
+        // 清空表单的数据
+        this.$refs.form2.resetFields()
+        // 关闭弹窗
+        this.dimensionVisible = false
+      } else {
+        this.$message({
+          type: 'false',
+          message: '请保持分数在0~100之间！'
+        });
+      }
+    },
+    ///
     getList() {
       // 获取的列表的数据
       getUserScoresNumber(this.pageData).then(response => {
@@ -675,6 +742,19 @@ export default {
           console.log(this.id)
           this.form.score = row.score;
         }
+      ///
+      //} else if (this.dimension === "旋律") {
+      //  this.clearData();
+      //  this.modalType = 1
+      //  this.dialogVisible = true
+      //  if (row) {
+      //    //编辑
+      //    this.title = '编辑窗体';
+      //    this.id = row.score_id;
+      //    console.log(this.id)
+      //    this.form.score = row.score;
+      //  }
+      ///
       } else if (this.dimension === "流派") {
         console.log(row)
         console.log(145689)
@@ -689,7 +769,8 @@ export default {
           //编辑
           this.title = '编辑窗体';
           this.dimensionid = row.dimension_score_id;
-          this.fclip.dimension_score = row.dimension_score;
+          /// this.fclip.dimension_score = row.dimension_score;
+          this.form2.dimension_score = row.dimension_score;
         }
       }
       // 注意需要对当前行数据进行深拷贝，否则会出错
@@ -704,6 +785,8 @@ export default {
         })
       }
     },
+    ///
+    /*
     handleDelete(score_id) {
       console.log(score_id)
       this.$confirm('此操作将永 久删除该文件, 是否继续?', '提示', {
@@ -730,6 +813,45 @@ export default {
         }
       });
     },
+    */
+    /// 删除评分记录时,新增将四个维度分一并删除
+    handleDelete(row) {
+      console.log(row)
+      console.log(row.score_id)
+      console.log(row.dimension_score_0_id)
+      console.log(row.dimension_score_1_id)
+      console.log(row.dimension_score_2_id)
+      console.log(row.dimension_score_3_id)
+      this.$confirm('此操作将删除该歌曲所有评分记录,是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+        callback: (action) => {
+          if (action === 'confirm') {
+            deleteAMarkedScore( {
+              score_id: row.score_id, 
+              dimension_score_0_id: row.dimension_score_0_id, 
+              dimension_score_1_id: row.dimension_score_1_id, 
+              dimension_score_2_id: row.dimension_score_2_id, 
+              dimension_score_3_id: row.dimension_score_3_id}).then(response => {
+              if (response.status === 200) {
+                this.$message({
+                  type: 'success',
+                  message: '删除成功!'
+                });
+                this.getList()
+              }
+            })
+          } else {
+            this.$message({
+              type: 'info',
+              message: '已取消删除'
+            });
+          }
+        }
+      });
+    },
+    ///
     clipDelete(clip_id) {
       console.log(clip_id)
       this.$confirm('此操作将永 久删除该文件, 是否继续?', '提示', {
@@ -791,7 +913,17 @@ export default {
     },
     // // 列表的查询
     onSubmit() {
+      ///
+      //console.log(row)
+      console.log(333)
+      const user_id = this.userid;
+      console.log(user_id)
+      ///
       // this.getList()
+      if (!this.userForm.musicname) {
+        this.$message.error('请输入音乐名');
+        return;
+      }
       getMarkedScoresByQuery({'query': this.userForm.musicname}).then(response => {
         this.tableData = response.data
         console.log(this.tableData)

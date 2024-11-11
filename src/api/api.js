@@ -16,6 +16,10 @@ export const getUserScoresNumber = data => {return axios.post(ip+'get_user_score
 
 export const getASongRandom = data => {return axios.post(ip+'get_a_song_random/', data)}
 
+export const findSongofVocalVersion = data => {return axios.post(ip+'find_song_of_vocal_version/', data)}
+
+export const findSongofInstrumentalVersion = data => {return axios.post(ip+'find_song_of_instrumental_version/', data)} 
+
 export const getAClipSongRandom = data => {return axios.post(ip+'clip_get_a_song_random/', data)}
 
 export const updateAMarkedScore = data => {return axios.post(ip+'update_marked_score/', data)}
@@ -39,6 +43,8 @@ export const getMarkedScoresByQuery = data => {return axios.post(ip+'get_marked_
 export const createMarkedScore = data => {return axios.post(ip+'create_marked_score/', data)}
 
 export const createDimensionScore = data => {return axios.post(ip+'create_dimension_score/', data)} ///
+
+export const createMusicEmotion = data => {return axios.post(ip+'create_music_emotion/', data)}
 
 export const createMarkedClip = data => {return axios.post(ip+'create_marked_clip/', data)}
 
