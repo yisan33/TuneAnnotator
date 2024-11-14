@@ -51,6 +51,8 @@
               <audio ref="audio"
                      @timeupdate="onTimeupdate"
                      @loadedmetadata="onLoadedmetadata"
+                     @seeking="onSeeking"
+                     @seeked="onSeeked"
                      controls="controls"
                      style="width: 500px; height: 30px; border-radius: 5px; margin-top: 10px"
               >
@@ -61,7 +63,7 @@
             </div>
           </el-card>
 
-          <el-card class="box-card" style="margin-top: 20px;width: 95%">
+          <el-card class="box-card" style="margin-top: 20px;width: 95%" v-show="hasPlayedOnce">
             <span style="font-size: 18px; color: #026b9f;">------------------------人声轨--------------------------</span>
             
             <div>
@@ -87,7 +89,7 @@
             </div>
           </el-card>
 
-          <el-card class="box-card" style="margin-top: 20px;width: 95%">
+          <el-card class="box-card" style="margin-top: 20px;width: 95%" v-show="hasPlayedOnce">
             <span style="font-size: 18px; color: #026b9f;">------------------------伴奏轨--------------------------</span>            <br>
             <div style="margin-top: 5px">
               <el-button class="highlight-button-b btn-9c" style="margin-top: 30px;">上一首</el-button>
@@ -150,7 +152,7 @@
                     <input 
                       type="text" 
                       v-model="form.score" 
-                      :aria-valid="isScoreValid1" 
+                      :aria-valid="isScoreValid1"
                       placeholder="请输入分数" 
                       @input="validateScore1" 
                       required
@@ -191,7 +193,8 @@
                     <input 
                       type="text" 
                       v-model="form.score2" 
-                      :aria-valid="isScoreValid2" 
+                      :aria-valid="isScoreValid2"
+                      :disabled="!isInputUnlocked"
                       placeholder="请输入分数" 
                       @input="validateScore2" 
                       required
@@ -234,7 +237,8 @@
                     <input 
                       type="text" 
                       v-model="form.score3" 
-                      :aria-valid="isScoreValid3" 
+                      :aria-valid="isScoreValid3"
+                      :disabled="!isInputUnlocked" 
                       placeholder="请输入分数" 
                       @input="validateScore3" 
                       required
@@ -277,7 +281,8 @@
                     <input 
                       type="text" 
                       v-model="form.score4" 
-                      :aria-valid="isScoreValid4" 
+                      :aria-valid="isScoreValid4"
+                      :disabled="!isInputUnlocked" 
                       placeholder="请输入分数" 
                       @input="validateScore4" 
                       required
@@ -318,7 +323,8 @@
                     <input 
                       type="text" 
                       v-model="form.score5" 
-                      :aria-valid="isScoreValid5" 
+                      :aria-valid="isScoreValid5"
+                      :disabled="!isInputUnlocked" 
                       placeholder="请输入分数" 
                       @input="validateScore5" 
                       required
@@ -445,6 +451,12 @@ export default {
         clip_score: '',
         dimension_score: ''
       },
+
+      isInputUnlocked: false, /// 输入框初始是锁定的
+      hasPlayedOnce: false,   /// 标记歌曲是否播放完一遍
+      lastValidTime: 0,        /// 保存上一次的有效播放时间，用于阻止拖动进度条
+      hasShownWarning: false, /// 用于控制弹窗提示只出现一次
+      hasShownPlayCompleted: false,
 
       // startTime: '',
       // endTime: '',
@@ -1103,7 +1115,22 @@ export default {
       // console.log('timeupdate')
       // console.log(res)
       this.audio.currentTime = res.target.currentTime
-      this.sliderTime = parseInt(this.audio.currentTime / this.audio.maxTime * 100)
+      this.sliderTime = parseInt(this.audio.currentTime / this.audio.maxTime * 100)  
+
+      ///新增对于进度条的控制,只有听完第一遍才能解锁输入框、拖动进度条
+      if (this.audio.currentTime >= this.audio.maxTime) {// 检查歌曲是否播放到结尾
+        this.isInputUnlocked = true;
+        this.hasPlayedOnce = true;
+        if (!this.hasShownPlayCompleted) {
+          this.$message({
+          type: 'success',
+          message: '维度标注功能已解锁',
+          duration: 5000
+        });
+        }
+        this.hasShownPlayCompleted = true;        
+      }
+      ///
     },
 
     onTimeupdate_vacal(res) {
@@ -1119,6 +1146,34 @@ export default {
       this.audio_instrumental.currentTime = res.target.currentTime
       this.sliderTime_instrumental = parseInt(this.audio_instrumental.currentTime / this.audio_instrumental.maxTime * 100)
     },
+
+    ///新增对于进度条的控制,只有听完第一遍才能解锁输入框、拖动进度条
+    onSeeking() {
+      const audio = this.$refs.audio;
+      const tempTime = this.lastValidTime
+      // 如果还没有播放完一次，则阻止拖动
+      if (!this.hasPlayedOnce) {
+        // audio.play()
+        if (!this.hasShownWarning) {
+          this.$message({
+          type: 'false',
+          message: '请先听完第一遍'
+        });
+        this.hasShownWarning = true; // 显示提示后立即设置标志
+        }
+      }
+    },
+    onSeeked() {
+      const audio = this.$refs.audio;
+      // 如果还没有播放完一次，再次阻止用户确认拖动的位置
+      if (!this.hasPlayedOnce) {
+        // audio.currentTime = 0; // 恢复到之前的位置
+        audio.load(); // 直接重新播放
+        audio.play();
+        this.hasShownWarning = false;
+      }
+    },
+    ///
 
 // 进度条格式化toolTip
     formatProcessToolTip(index = 0) {

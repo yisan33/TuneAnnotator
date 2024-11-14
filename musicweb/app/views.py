@@ -392,8 +392,10 @@ def get_user_page_scores(request):
 def get_marked_scores_by_query(request):
     body = json.loads(request.body)
     query = body['query']
-    ## user_id = body['user_id'] ##
-    music_name_scores = MarkedScore.objects.filter(music_id__music_name__contains=query)
+    user_id = body['user_id'] ##
+    ## music_name_scores = MarkedScore.objects.filter(music_id__music_name__contains=query)
+    music_name_scores = MarkedScore.objects.filter(music_id__music_name__contains=query, user_id=user_id)
+
     ## singer_scores = MarkedScore.objects.filter(music_id__singer__contains=query)
     ## score_scores = MarkedScore.objects.filter(score__contains=query)
     ## scores = score_scores.union(music_name_scores, singer_scores)

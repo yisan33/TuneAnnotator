@@ -920,11 +920,11 @@ export default {
       console.log(user_id)
       ///
       // this.getList()
-      if (!this.userForm.musicname) {
-        this.$message.error('请输入音乐名');
-        return;
-      }
-      getMarkedScoresByQuery({'query': this.userForm.musicname}).then(response => {
+      //if (!this.userForm.musicname) {
+      //  this.$message.error('请输入音乐名');
+      //  return;
+      //}
+      getMarkedScoresByQuery({'query': this.userForm.musicname, 'user_id': user_id}).then(response => {
         this.tableData = response.data
         console.log(this.tableData)
       })
