@@ -7,7 +7,7 @@
         :visible.sync="dialogVisible"
         width="50%"
         :before-close="handleClose">
-      <el-form ref="form" :rules="rules" :inline="true" :model="form" label-width="80px">
+      <el-form ref="form" :rules="rules" :inline="true" :model="form" label-width="80px" class="custom-align-center">
         <el-form-item label="整体分数" prop="score">
           <el-input placeholder="请输入整体分数" v-model="form.score"></el-input>
         </el-form-item>
@@ -25,7 +25,7 @@
         width="50%"
         :before-close="sb1Close">
       <el-form ref="form" :rules="rules" :inline="true" :model="form" label-width="80px">
-        <el-form-item label="流派" prop="genre">
+        <el-form-item label="流派" prop="genre" class="custom-align-center">
           <el-select v-model="value" @change="dylog" placeholder="请选择">
             <el-option
                 v-for="item in options"
@@ -112,7 +112,7 @@
         :before-close="dimensionClose">
       <el-form ref="form2" :rules="rules2" :inline="true" :model="form2" label-width="80px">
 
-        <el-form-item label="分数" prop="dimension_score">
+        <el-form-item label="分数" prop="dimension_score" class="custom-align-center">
           <el-input placeholder="请输入分数" v-model="form2.dimension_score"></el-input>
         </el-form-item>
 
@@ -153,7 +153,7 @@
         <el-table-column>
           <template slot-scope="scope">
             <el-button size="mini" @click="dimensionEdit(scope.row)">编辑</el-button>
-            <el-button type="primary" @click="getclip">技巧</el-button>
+            <!-- <el-button type="primary" @click="getclip">技巧</el-button> -->
             <!--            <el-button size="mini" @click="getclip">技巧</el-button>-->
           </template>
         </el-table-column>
@@ -357,13 +357,13 @@ export default {
       ///
       rules2: {
         dimension_score: [
-          { required: true, message: '请输入分数'}
+          { required: false, message: '请输入分数'}
         ],
       },
       ///
       rules: {
         score: [
-          {required: true, message: '请输入分数'}
+          {required: false, message: '请输入分数'}
         ],
       },
       copyVisible: false,
@@ -442,6 +442,15 @@ export default {
     submit() {
       //后续对表单数据的处理
       let new_score = this.form.score
+      /// 检查是否为空
+      if (new_score === '') {
+        this.$message({
+          type: 'warning',
+          message: '请输入整体分数'
+        });
+        return;
+      }
+      ///
       if (new_score > 100 || new_score < 0) {
         this.$message({
           type: 'false',
@@ -519,9 +528,18 @@ export default {
     */
     ///
     subdimension() {
-      let new_dimension_score = Number(this.form2.dimension_score)
-      console.log(new_dimension_score)
-      console.log(this.dimensionid)
+      let new_dimension_score = this.form2.dimension_score
+      // console.log(new_dimension_score)
+      // console.log(this.dimensionid)
+      // 检查是否为空
+      if (new_dimension_score === '') {
+        this.$message({
+          type: 'warning',
+          message: '请输入分数'
+        });
+        return;
+      }
+      new_dimension_score = Number(this.form2.dimension_score)
       if (new_dimension_score >= 0 && new_dimension_score <= 100 && Number.isInteger(new_dimension_score)) {
         updateAMarkedDimensionscore({
           'dimension_score_id': this.dimensionid,
@@ -606,7 +624,7 @@ export default {
         console.log(song)
         this.name = song.music_name
         this.singer = song.singer
-        this.src = require('@/assets/mp3/' + this.singer + '-' + this.name + '_(Vocals)' + '.wav')
+        this.src = require('@/assets/mp3/' + this.singer + '-' + this.name + '.mp3')
         this.$refs.audio.src = this.src;
         this.$refs.audio.play()
       })
@@ -955,5 +973,13 @@ export default {
       right: 20px;
     }
   }
+}
+</style>
+
+<style>
+.custom-align-center .el-form-item__label {
+  display: flex;
+  align-items: center;
+  height: 100%;
 }
 </style>

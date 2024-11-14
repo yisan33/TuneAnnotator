@@ -1085,6 +1085,9 @@ export default {
       this.isScoreValid3 = 'false';
       this.isScoreValid4 = 'false';
       this.isScoreValid5 = 'false';
+
+      this.hasPlayedOnce = false;
+      this.isInputUnlocked = false;
       
     },
     onLoadedmetadata(res) {
@@ -1156,8 +1159,8 @@ export default {
         // audio.play()
         if (!this.hasShownWarning) {
           this.$message({
-          type: 'false',
-          message: '请先听完第一遍'
+          type: 'warning',
+          message: '请先完整听完一遍'
         });
         this.hasShownWarning = true; // 显示提示后立即设置标志
         }
