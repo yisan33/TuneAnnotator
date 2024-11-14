@@ -76,6 +76,8 @@
               <audio ref="audio_vocal"
                      @timeupdate="onTimeupdate_vacal"
                      @loadedmetadata="onLoadedmetadata_vocal"
+                     @seeking="onSeeking_vocal"
+                     @seeked="onSeeked_vocal"
                      controls="controls"
                      style="width: 500px; height: 30px; border-radius: 5px; margin-top: 10px"
               >
@@ -102,6 +104,8 @@
               <audio ref="audio_instrumental"
                      @timeupdate="onTimeupdate_instrumental"
                      @loadedmetadata="onLoadedmetadata_instrumental"
+                     @seeking="onSeeking_instrumental"
+                     @seeked="onSeeked_instrumental"
                      controls="controls"
                      style="width: 500px; height: 30px; border-radius: 5px; margin-top: 10px"
               >
@@ -153,7 +157,8 @@
                       type="text" 
                       v-model="form.score" 
                       :aria-valid="isScoreValid1"
-                      placeholder="请输入分数" 
+                      :disabled="!isInputUnlocked"
+                      :placeholder="isInputUnlocked ? '请输入分数' : '请先听完原曲'" 
                       @input="validateScore1" 
                       required
                     />
@@ -194,8 +199,8 @@
                       type="text" 
                       v-model="form.score2" 
                       :aria-valid="isScoreValid2"
-                      :disabled="!isInputUnlocked"
-                      placeholder="请输入分数" 
+                      :disabled="!isInputUnlocked_vocal"
+                      :placeholder="isInputUnlocked_vocal ? '请输入分数' : '请先听完人声轨'" 
                       @input="validateScore2" 
                       required
                     />
@@ -239,7 +244,7 @@
                       v-model="form.score3" 
                       :aria-valid="isScoreValid3"
                       :disabled="!isInputUnlocked" 
-                      placeholder="请输入分数" 
+                      :placeholder="isInputUnlocked ? '请输入分数' : '请先听完原曲'" 
                       @input="validateScore3" 
                       required
                     />
@@ -282,8 +287,8 @@
                       type="text" 
                       v-model="form.score4" 
                       :aria-valid="isScoreValid4"
-                      :disabled="!isInputUnlocked" 
-                      placeholder="请输入分数" 
+                      :disabled="!isInputUnlocked_instrumental" 
+                      :placeholder="isInputUnlocked_instrumental ? '请输入分数' : '请先听完伴奏轨'" 
                       @input="validateScore4" 
                       required
                     />
@@ -325,7 +330,7 @@
                       v-model="form.score5" 
                       :aria-valid="isScoreValid5"
                       :disabled="!isInputUnlocked" 
-                      placeholder="请输入分数" 
+                      :placeholder="isInputUnlocked ? '请输入分数' : '请先听完原曲'" 
                       @input="validateScore5" 
                       required
                     />
@@ -453,10 +458,18 @@ export default {
       },
 
       isInputUnlocked: false, /// 输入框初始是锁定的
+      isInputUnlocked_vocal: false,
+      isInputUnlocked_instrumental: false,
       hasPlayedOnce: false,   /// 标记歌曲是否播放完一遍
-      lastValidTime: 0,        /// 保存上一次的有效播放时间，用于阻止拖动进度条
+      hasPlayedOnce_vocal: false,
+      hasPlayedOnce_instrumental: false,
+      // lastValidTime: 0,        /// 保存上一次的有效播放时间，用于阻止拖动进度条
       hasShownWarning: false, /// 用于控制弹窗提示只出现一次
+      hasShownWarning_vocal: false,
+      hasShownWarning_instrumental: false,
       hasShownPlayCompleted: false,
+      hasShownPlayCompleted_vocal: false,
+      hasShownPlayCompleted_instrumental: false,
 
       // startTime: '',
       // endTime: '',
@@ -1078,6 +1091,16 @@ export default {
             this.box.play();
           }
 
+          this.hasPlayedOnce = false;
+          this.hasPlayedOnce_vocal = false;
+          this.hasPlayedOnce_instrumental = false;
+          this.isInputUnlocked = false;
+          this.isInputUnlocked_vocal = false;
+          this.isInputUnlocked_instrumental = false;
+          this.hasShownPlayCompleted = false;
+          this.hasShownPlayCompleted_vocal = false;
+          this.hasShownPlayCompleted_instrumental = false;
+
         }
       }
       this.isScoreValid1 = 'false';
@@ -1086,8 +1109,6 @@ export default {
       this.isScoreValid4 = 'false';
       this.isScoreValid5 = 'false';
 
-      this.hasPlayedOnce = false;
-      this.isInputUnlocked = false;
       
     },
     onLoadedmetadata(res) {
@@ -1127,7 +1148,7 @@ export default {
         if (!this.hasShownPlayCompleted) {
           this.$message({
           type: 'success',
-          message: '维度标注功能已解锁',
+          message: '部分维度标注功能已解锁',
           duration: 5000
         });
         }
@@ -1141,6 +1162,21 @@ export default {
       // console.log(res)
       this.audio_vocal.currentTime = res.target.currentTime
       this.sliderTime_vocal = parseInt(this.audio_vocal.currentTime / this.audio_vocal.maxTime * 100)
+
+      ///新增对于进度条的控制,只有听完第一遍才能解锁输入框、拖动进度条
+      if (this.audio_vocal.currentTime >= this.audio_vocal.maxTime) {// 检查歌曲是否播放到结尾
+        this.isInputUnlocked_vocal = true;
+        this.hasPlayedOnce_vocal = true;
+        if (!this.hasShownPlayCompleted_vocal) {
+          this.$message({
+          type: 'success',
+          message: '人声轨标注功能已解锁',
+          duration: 5000
+        });
+        }
+        this.hasShownPlayCompleted_vocal = true;        
+      }
+      ///
     },
 
     onTimeupdate_instrumental(res) {
@@ -1148,12 +1184,27 @@ export default {
       // console.log(res)
       this.audio_instrumental.currentTime = res.target.currentTime
       this.sliderTime_instrumental = parseInt(this.audio_instrumental.currentTime / this.audio_instrumental.maxTime * 100)
+
+      ///新增对于进度条的控制,只有听完第一遍才能解锁输入框、拖动进度条
+      if (this.audio_instrumental.currentTime >= this.audio_instrumental.maxTime) {// 检查歌曲是否播放到结尾
+        this.isInputUnlocked_instrumental = true;
+        this.hasPlayedOnce_instrumental = true;
+        if (!this.hasShownPlayCompleted_instrumental) {
+          this.$message({
+          type: 'success',
+          message: '伴奏轨标注功能已解锁',
+          duration: 5000
+        });
+        }
+        this.hasShownPlayCompleted_instrumental = true;        
+      }
+      ///
     },
 
     ///新增对于进度条的控制,只有听完第一遍才能解锁输入框、拖动进度条
     onSeeking() {
       const audio = this.$refs.audio;
-      const tempTime = this.lastValidTime
+      // const tempTime = this.lastValidTime
       // 如果还没有播放完一次，则阻止拖动
       if (!this.hasPlayedOnce) {
         // audio.play()
@@ -1174,6 +1225,58 @@ export default {
         audio.load(); // 直接重新播放
         audio.play();
         this.hasShownWarning = false;
+      }
+    },
+
+    onSeeking_vocal() {
+      const audio_vocal = this.$refs.audio_vocal;
+      // const tempTime = this.lastValidTime
+      // 如果还没有播放完一次，则阻止拖动
+      if (!this.hasPlayedOnce_vocal) {
+        // audio.play()
+        if (!this.hasShownWarning_vocal) {
+          this.$message({
+          type: 'warning',
+          message: '请先完整听完一遍人声轨'
+        });
+        this.hasShownWarning_vocal = true; // 显示提示后立即设置标志
+        }
+      }
+    },
+    onSeeked_vocal() {
+      const audio_vocal = this.$refs.audio_vocal;
+      // 如果还没有播放完一次，再次阻止用户确认拖动的位置
+      if (!this.hasPlayedOnce_vocal) {
+        // audio.currentTime = 0; // 恢复到之前的位置
+        audio_vocal.load(); // 直接重新播放
+        audio_vocal.play();
+        this.hasShownWarning_vocal = false;
+      }
+    },
+
+    onSeeking_instrumental() {
+      const audio_instrumental = this.$refs.audio_instrumental;
+      // const tempTime = this.lastValidTime
+      // 如果还没有播放完一次，则阻止拖动
+      if (!this.hasPlayedOnce_instrumental) {
+        // audio.play()
+        if (!this.hasShownWarning_instrumental) {
+          this.$message({
+          type: 'warning',
+          message: '请先完整听完一遍伴奏轨'
+        });
+        this.hasShownWarning_instrumental = true; // 显示提示后立即设置标志
+        }
+      }
+    },
+    onSeeked_instrumental() {
+      const audio_instrumental = this.$refs.audio_instrumental;
+      // 如果还没有播放完一次，再次阻止用户确认拖动的位置
+      if (!this.hasPlayedOnce_instrumental) {
+        // audio.currentTime = 0; // 恢复到之前的位置
+        audio_instrumental.load(); // 直接重新播放
+        audio_instrumental.play();
+        this.hasShownWarning_instrumental = false;
       }
     },
     ///
