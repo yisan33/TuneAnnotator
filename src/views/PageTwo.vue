@@ -1,5 +1,48 @@
 <template>
   <div>
+    <el-button 
+      @click="showBenchmarkSong()" 
+      class="highlight-button btn-9b" 
+      style="font-size: 15px; padding: 5px 10px;  height: 30px; position: absolute; right: 250px; top: 25px;"
+      >标杆曲目
+    </el-button>
+
+    <el-dialog
+      class="benchmark-dialog"
+      title="标杆曲目"
+      :visible.sync="benchmarkSongVisible"
+      width="60%"
+      @close="pauseAllAudios">
+
+      <!-- 页面的主标题 -->
+      <h2>{{ getCurrentPageTitle() }}</h2>
+
+      <!-- 每页的次级标题和音频 -->
+      <div v-for="(level, index) in getCurrentPageLevels()" :key="index">
+        <h3>{{ level.title }}</h3>
+        <div class="song-container">
+          <div v-for="(song, songIndex) in level.songs" :key="songIndex" class="song-item">
+            <p><strong>{{ song.artist }} - {{ song.name }}</strong></p>
+            <audio :ref="'audio' + songIndex" controls>
+              <source :src="require('@/assets/mp3/' + song.artist + '-' + song.name + '.mp3')" type="audio/mp3">
+              您的浏览器不支持音频播放。
+            </audio>
+          </div>
+        </div>
+      </div>
+
+      <!-- 分页组件 -->
+      <el-pagination
+        @current-change="handlePageChange"
+        :current-page="currentPage"
+        :page-size="1"
+        :total="totalPages"
+        layout="prev, pager, next"
+        style="margin-top: 20px;">
+      </el-pagination>
+      
+    </el-dialog>
+
     <div>
       <el-dialog
           class="mydialog"
@@ -437,6 +480,55 @@ export default {
   data() {
     return {
       Visible: true,
+      benchmarkSongVisible: false, ///
+      ///
+      benchmarkSongVisible: false, // 控制弹窗显示与隐藏
+      currentPage: 1, // 当前页码
+      totalPages: 5, // 总页数
+      // 每一页的标题
+      pageTitles: [
+        '整体评价', '演唱', '旋律', '编曲', '音频质量'
+      ],
+      // 每一页的次级标题（S级别、A级别等）及歌曲
+      pageLevels: [
+        [
+          { title: 'S级别', songs: [{ artist: '周杰伦', name: '最长的电影'}, { artist: '刘德华', name: '17岁'}] },
+          { title: 'A级别', songs: [{ artist: '周杰伦', name: '超人不会飞'}, { artist: '丁世光', name: '神探'}] },
+          { title: 'B级别', songs: [{ artist: '周杰伦', name: '兰亭序'}, { artist: '周杰伦', name: '最长的电影'}, { artist: '刘德华', name: '17岁'}] },
+          { title: 'C级别', songs: [{ artist: '周杰伦', name: '最长的电影'}, { artist: '刘德华', name: '17岁'}] },
+          { title: 'D级别', songs: [{ artist: '周杰伦', name: '最长的电影'}, { artist: '刘德华', name: '17岁'}] }
+        ],
+        [
+          { title: 'S级别', songs: [{ artist: '周杰伦', name: '最长的电影'}, { artist: '刘德华', name: '17岁'}] },
+          { title: 'A级别', songs: [{ artist: '周杰伦', name: '超人不会飞'}, { artist: '丁世光', name: '神探'}] },
+          { title: 'B级别', songs: [{ artist: '周杰伦', name: '兰亭序'}, { artist: '周杰伦', name: '最长的电影'}, { artist: '刘德华', name: '17岁'}] },
+          { title: 'C级别', songs: [{ artist: '周杰伦', name: '最长的电影'}, { artist: '刘德华', name: '17岁'}] },
+          { title: 'D级别', songs: [{ artist: '林俊杰', name: '愿与愁'}, { artist: '林俊杰', name: '交换余生'}] }
+        ],
+        [
+          { title: 'S级别', songs: [{ artist: '周杰伦', name: '最长的电影'}, { artist: '刘德华', name: '17岁'}] },
+          { title: 'A级别', songs: [{ artist: '周杰伦', name: '超人不会飞'}, { artist: '丁世光', name: '神探'}] },
+          { title: 'B级别', songs: [{ artist: '周杰伦', name: '兰亭序'}, { artist: '周杰伦', name: '最长的电影'}, { artist: '刘德华', name: '17岁'}] },
+          { title: 'C级别', songs: [{ artist: '周杰伦', name: '最长的电影'}, { artist: '刘德华', name: '17岁'}] },
+          { title: 'D级别', songs: [{ artist: '林俊杰', name: '达尔文'}, { artist: '王力宏', name: '我们的歌'}] }
+        ],
+        [
+          { title: 'S级别', songs: [{ artist: '周杰伦', name: '最长的电影'}, { artist: '刘德华', name: '17岁'}] },
+          { title: 'A级别', songs: [{ artist: '周杰伦', name: '超人不会飞'}, { artist: '丁世光', name: '神探'}] },
+          { title: 'B级别', songs: [{ artist: '周杰伦', name: '兰亭序'}, { artist: '周杰伦', name: '最长的电影'}, { artist: '刘德华', name: '17岁'}] },
+          { title: 'C级别', songs: [{ artist: '周杰伦', name: '最长的电影'}, { artist: '刘德华', name: '17岁'}] },
+          { title: 'D级别', songs: [{ artist: '葛东琪', name: '悬溺'}, { artist: '陈雪凝', name: '你的酒馆对我打了烊'}] }
+        ],
+        [
+          { title: 'S级别', songs: [{ artist: '周杰伦', name: '最长的电影'}, { artist: '刘德华', name: '17岁'}] },
+          { title: 'A级别', songs: [{ artist: '周杰伦', name: '超人不会飞'}, { artist: '丁世光', name: '神探'}] },
+          { title: 'B级别', songs: [{ artist: '周杰伦', name: '兰亭序'}, { artist: '周杰伦', name: '最长的电影'}, { artist: '刘德华', name: '17岁'}] },
+          { title: 'C级别', songs: [{ artist: '周杰伦', name: '最长的电影'}, { artist: '刘德华', name: '17岁'}] },
+          { title: 'D级别', songs: [{ artist: '周杰伦', name: '最长的电影'}, { artist: '刘德华', name: '17岁'}] }
+        ]
+      ],
+
+      ///
       radio: 1,
       
       radio11: '',
@@ -623,6 +715,7 @@ export default {
       ]
     }
   },
+
   mounted() {
     // this.getMusic()
     this.init();
@@ -1101,13 +1194,15 @@ export default {
           this.hasShownPlayCompleted_vocal = false;
           this.hasShownPlayCompleted_instrumental = false;
 
+          this.isScoreValid1 = 'false';
+          this.isScoreValid2 = 'false';
+          this.isScoreValid3 = 'false';
+          this.isScoreValid4 = 'false';
+          this.isScoreValid5 = 'false';
+
         }
       }
-      this.isScoreValid1 = 'false';
-      this.isScoreValid2 = 'false';
-      this.isScoreValid3 = 'false';
-      this.isScoreValid4 = 'false';
-      this.isScoreValid5 = 'false';
+      
 
       
     },
@@ -1278,6 +1373,36 @@ export default {
         audio_instrumental.play();
         this.hasShownWarning_instrumental = false;
       }
+    },
+    ///
+    
+    /// 新增标杆曲目翻页
+    showBenchmarkSong() {
+      this.benchmarkSongVisible = true;
+    },
+    // 获取当前页的标题
+    getCurrentPageTitle() {
+      return this.pageTitles[this.currentPage - 1] || '';
+    },
+    // 获取当前页的次级标题和歌曲
+    getCurrentPageLevels() {
+      return this.pageLevels[this.currentPage - 1] || [];
+    },
+    // 翻页时切换当前页码
+    handlePageChange(page) {
+      this.currentPage = page;
+    },
+    // 暂停所有音频
+    pauseAllAudios() {
+      const audios = [];
+      for (let i = 0; i < this.songs.flat().length; i++) {
+        audios.push(this.$refs[`audio${i}`]);
+      }
+      audios.forEach(audio => {
+        if (audio) {
+          audio.pause();
+        }
+      });
     },
     ///
 
@@ -1638,6 +1763,13 @@ export default {
   border-radius: 10px;
   background-color: #f0f4f7; /* 更改为对话框内容区域的背景颜色 */
 }
+
+///
+/* 强制隐藏右上角的关闭按钮 */
+.mydialog .el-dialog__headerbtn {
+  display: none;
+}
+///
 
 //.el-dialog__body{
 //  flex:1 !important;
@@ -2297,4 +2429,36 @@ audio::-webkit-media-controls-panel {
 </style>
 
 <style>
+
+<style>
+/* 横向排列歌曲 */
+.song-container {
+  display: flex;         /* 使用 Flexbox 使容器的子项横向排列 */
+  flex-wrap: wrap;       /* 让子项在必要时换行 */
+  gap: 20px;             /* 歌曲之间的间距 */
+  justify-content: flex-start; /* 确保元素从容器的开始位置排列 */
+  width: 100%; /* 确保容器宽度充满父元素 */
+  
+}
+
+.song-item {
+  display:inline-block;
+  width: 200px;          /* 每个歌曲项的宽度 */
+  text-align: center;    /* 歌手与歌曲名居中 */
+  margin: 10px 60px;
+}
+
+/* 去掉第一项的左侧间距 */
+.song-item:first-child {
+  margin-left: 0;
+}
+
+.benchmark-dialog .el-dialog__body {
+  padding-top: 0;
+}
+
+.benchmark-dialog h2 {
+  margin-top: 0;
+}
+</style>
 
