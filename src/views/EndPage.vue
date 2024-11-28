@@ -2,7 +2,7 @@
   <div class="login-background">
     <div class="background-image"></div>
     <el-form ref="form" label-width="70px" class="login-container" :model="form">
-      <h3 class="login_title">标注完成，关闭页面即可</h3>
+      <h3 class="login_title">标注完成，将自动返回</h3>
     </el-form>
   </div>
 </template>

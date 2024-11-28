@@ -20,7 +20,7 @@ const routes = [
     children: [
       { path: 'home',name:'home', component: Home, meta:{requireAuth: true} },
       { path: 'user', component: User, meta:{requireAuth: true} },
-      { path: 'scorelist', component: Scorelist, meta:{requireAuth: true} },
+      { path: 'scorelist',name:'scorelist', component: Scorelist, meta:{requireAuth: true} },
       { path: 'user', component: User, meta:{requireAuth: true} },
       { path: 'page1', component: PageOne, meta:{requireAuth: true} },
       { path: 'page2', component: PageTwo, meta:{requireAuth: true} },

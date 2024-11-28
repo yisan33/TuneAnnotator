@@ -1145,6 +1145,11 @@ export default {
                 this.sb = true
                 this.$refs.audio.pause()
                 this.$router.push({ name: 'EndPage' })
+                /// 延迟跳转到 scorelist
+                setTimeout(() => {
+                  this.$router.push({ name: 'scorelist' });
+                }, 3000);  // 3000ms 延迟时间，根据需要调整
+                ///
               } else {
                 this.id = response.data.music_id
                 this.name = response.data.music_name
@@ -1244,6 +1249,7 @@ export default {
       // console.log(res)
       this.audio.waiting = false
       this.audio.maxTime = parseInt(res.target.duration)
+      
     },
 
     onLoadedmetadata_vocal(res) {
@@ -1342,7 +1348,7 @@ export default {
           message: '请先完整听完一遍'
         });
         this.hasShownWarning = true; // 显示提示后立即设置标志
-        }
+        }    
       }
     },
     onSeeked() {
@@ -1459,6 +1465,11 @@ export default {
         if (response.data === "没有需要标注的歌曲") {
           this.sb = true
           this.$router.push({ name: 'EndPage' })
+          /// 延迟跳转到 scorelist
+          setTimeout(() => {
+            this.$router.push({ name: 'scorelist' });
+          }, 3000);  // 3000ms 延迟时间，根据需要调整
+          ///
         } else {
           ///
           
@@ -2503,4 +2514,5 @@ audio::-webkit-media-controls-panel {
   padding-right: 7px; 
   color: #333; /* 文本颜色 */
 }
+
 </style>
