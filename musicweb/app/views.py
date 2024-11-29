@@ -110,13 +110,25 @@ def get_a_song_id(request):
 def get_a_song_random(request):
     body = json.loads(request.body)
     user_id = body['user_id']
+
+    ## 新增专家所评歌曲分配规则
+    if user_id == '46' or user_id == '47' or user_id == '48' or user_id == '49':
+        user_musics = AssignUserMusic.objects.filter(user_id=user_id)
+        unmark_music_ids = user_musics.filter(is_mark=0).values('music_id')
+        unmark_musics = list(Music.objects.filter(music_id__in=unmark_music_ids).values())
+        
+        total_number = user_musics.count()
+        unmarked_count = len(unmark_musics)
+        marked_count = total_number - unmarked_count
+    else:
+    ##
     # 测试用户没有歌曲限制
     ## if user_id == '1' or user_id == 1 or user_id == '2' or user_id == 2:
-    marked_music = MarkedScore.objects.filter(user_id=user_id).values('music_id')
-    unmark_musics = list(Music.objects.exclude(music_id__in=marked_music).values())
+        marked_music = MarkedScore.objects.filter(user_id=user_id).values('music_id')
+        unmark_musics = list(Music.objects.exclude(music_id__in=marked_music).values())
 
-    marked_count = marked_music.count()
-    unmarked_count = len(unmark_musics)
+        marked_count = marked_music.count()
+        unmarked_count = len(unmark_musics)
 
     # # 专家
     # else:
@@ -444,6 +456,11 @@ def create_marked_score(request):
     music_id = body['music_id']
     marked_number = MarkedScore.objects.filter(music_id=music_id).count()
     Music.objects.filter(music_id=music_id).update(marked_number=marked_number)
+    ##
+    if AssignUserMusic.objects.filter(user_id=user, music_id=music).exists():
+        # 更新 AssignUserMusic 中的 is_mark 字段为 1
+        AssignUserMusic.objects.filter(user_id=user, music_id=music).update(is_mark=1)
+    ##
     return HttpResponse("success")
 
 ## 维度分
@@ -549,6 +566,12 @@ def delete_marked_score(request):
     marked_dimension_score_1.delete()
     marked_dimension_score_2.delete()
     marked_dimension_score_3.delete()
+    ##
+    ## 新增将用户分配歌曲的标记位is_mark置为0
+    # user = User.objects.get(user_id=user_id)
+    # music = Music.objects.get(music_id=music_id)
+    if AssignUserMusic.objects.filter(user_id=user_id, music_id=music_id).exists():
+        AssignUserMusic.objects.filter(user_id=user_id, music_id=music_id).update(is_mark=0)
     ##
     return HttpResponse("success")
 

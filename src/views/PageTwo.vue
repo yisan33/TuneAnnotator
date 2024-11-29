@@ -243,8 +243,8 @@
                       type="text" 
                       v-model="form.score2" 
                       :aria-valid="isScoreValid2"
-                      :disabled="!isInputUnlocked_vocal"
-                      :placeholder="isInputUnlocked_vocal ? '请输入分数' : '请先听完人声轨'" 
+                      :disabled="!isInputUnlocked"
+                      :placeholder="isInputUnlocked ? '请输入分数' : '请先听完人声轨'" 
                       @input="validateScore2" 
                       required
                     />
@@ -332,8 +332,8 @@
                       type="text" 
                       v-model="form.score4" 
                       :aria-valid="isScoreValid4"
-                      :disabled="!isInputUnlocked_instrumental" 
-                      :placeholder="isInputUnlocked_instrumental ? '请输入分数' : '请先听完伴奏轨'" 
+                      :disabled="!isInputUnlocked" 
+                      :placeholder="isInputUnlocked ? '请输入分数' : '请先听完伴奏轨'" 
                       @input="validateScore4" 
                       required
                     />
